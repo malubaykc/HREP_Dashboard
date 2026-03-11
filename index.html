@@ -205,7 +205,7 @@ tbody td:first-child{color:var(--text);font-weight:500}
     <button class="nav-btn" onclick="showView('districts')">🗺️ Districts</button>
     <button class="nav-btn" onclick="showView('dynasties')">👑 Dynasties</button>
     <button class="nav-btn" onclick="showView('congress')">📜 Congress</button>
-    <button class="nav-btn" onclick="showView('guide')" style="border-left:1px solid var(--border);margin-left:4px">📊 Google Sheets Guide</button>
+    
   </nav>
 </header>
 
@@ -347,355 +347,7 @@ tbody td:first-child{color:var(--text);font-weight:500}
     <div id="congressContent"></div>
   </div>
 
-  <!-- GOOGLE SHEETS GUIDE VIEW -->
-  <div id="view-guide" style="display:none">
-    <div class="guide-view fade-in">
-
-      <div class="guide-section">
-        <div class="guide-section-title">📊 Google Sheets — Live Dynasty Dashboard</div>
-        <div class="guide-section-sub">Follow these steps to replicate this dashboard in Google Sheets with live data that auto-updates whenever your source files change. Estimated setup time: 45–60 minutes.</div>
-
-        <div style="background:var(--navy);border:1px solid var(--dynasty-border);border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;gap:16px;align-items:center">
-          <div style="font-size:28px">🏆</div>
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--gold-light);margin-bottom:4px">Why Google Sheets over Power BI?</div>
-            <div style="font-size:12px;color:var(--text2);line-height:1.6">Google Sheets wins for this use case: it's free, shareable via link, works natively with CSV/Google Drive files, has built-in pivot tables, and supports Apps Script for live automation — no desktop software, no licenses needed.</div>
-          </div>
-        </div>
-
-        <div class="guide-divider"></div>
-        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px">🗂 Step 1 — Set Up Your Source Data Sheets</div>
-
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-body">
-            <div class="step-title">Create a new Google Spreadsheet</div>
-            <div class="step-desc">Go to <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> → click <code>Blank</code>. Name it <code>PH Congress Dynasty Tracker</code>. You'll create multiple sheets (tabs) inside it.</div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-body">
-            <div class="step-title">Create the "legislators" source sheet</div>
-            <div class="step-desc">Right-click the tab at the bottom → <code>Rename</code> → type <code>legislators</code>. Add these exact column headers in Row 1:</div>
-            <div class="sheet-preview">
-              <div class="sheet-header">legislators sheet — Column Headers (Row 1)</div>
-              <div class="sheet-row head" style="grid-template-columns:repeat(10,1fr)">
-                <span>full_name</span><span>sort_name</span><span>region</span><span>district</span><span>clan</span><span>is_dynasty</span><span>sex</span><span>total_terms</span><span>last_congress</span><span>congresses_served</span>
-              </div>
-              <div class="sheet-row data" style="grid-template-columns:repeat(10,1fr)">
-                <span>Bongbong Marcos</span><span>MARCOS, BM</span><span>Ilocos Norte</span><span>2nd District</span><span>Marcos</span><span>TRUE</span><span>M</span><span>4</span><span>19th Congress</span><span>11th,13th,15th,19th</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-body">
-            <div class="step-title">Create the "districts" source sheet</div>
-            <div class="step-desc">Add a new tab named <code>districts</code>. Columns: <code>region</code>, <code>district</code>, then one column per congress (e.g. <code>8th_Congress</code>, <code>9th_Congress</code> … <code>20th_Congress</code>), each cell containing the representative's name.</div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-body">
-            <div class="step-title">Import your existing CSV/HTML data</div>
-            <div class="step-desc">If your data is already in CSV files: <code>File → Import → Upload</code> → choose your CSV → select <code>Insert into current sheet</code>. The sheet will stay linked — when you re-import, your formulas on other sheets will auto-recalculate.
-            <div class="tip-box">💡 <div>Pro tip: Upload your CSV to Google Drive first, then use <code>=IMPORTRANGE()</code> or <code>=QUERY()</code> to pull it in — this way updates to the Drive file reflect instantly without re-importing manually.</div></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="guide-divider"></div>
-        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px">📐 Step 2 — Build the Dynasty KPI Dashboard Sheet</div>
-
-        <div class="step">
-          <div class="step-num">5</div>
-          <div class="step-body">
-            <div class="step-title">Create a new tab named "dashboard"</div>
-            <div class="step-desc">This tab will show all the KPI stats that mirror the ones at the top of this HTML dashboard. All formulas reference the <code>legislators</code> sheet and recalculate live whenever data changes.</div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">6</div>
-          <div class="step-body">
-            <div class="step-title">KPI 1 — Total Legislators</div>
-            <div class="step-desc">In cell <code>B2</code>, enter the label <code>Total Legislators</code>. In <code>C2</code>:</div>
-            <div class="formula-box">=COUNTA(legislators!A2:A)</div>
-            <div class="step-desc" style="margin-top:8px">This counts every non-empty row in the full_name column, giving you the total headcount. Updates live when rows are added.</div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">7</div>
-          <div class="step-body">
-            <div class="step-title">KPI 2 — Number of Political Dynasties</div>
-            <div class="step-desc">Label: <code>Political Dynasties</code>. In <code>C3</code>:</div>
-            <div class="formula-box">=SUMPRODUCT((EXACT(legislators!F2:F,"TRUE"))*(1/COUNTIF(legislators!E2:E,legislators!E2:E)))</div>
-            <div class="step-desc" style="margin-top:8px">This counts each unique clan name only once, but only where <code>is_dynasty = TRUE</code>. So if Marcos has 5 members, they count as 1 dynasty, not 5.</div>
-            <div class="warn-box">⚠️ <div>Make sure the <code>is_dynasty</code> column uses exactly <code>TRUE</code>/<code>FALSE</code> (not "Yes"/"No"). You can set data validation on that column: <code>Data → Data Validation → Checkbox</code>.</div></div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">8</div>
-          <div class="step-body">
-            <div class="step-title">KPI 3 — Percentage of Dynasty Members</div>
-            <div class="step-desc">Label: <code>Dynasty %</code>. In <code>C4</code>:</div>
-            <div class="formula-box">=COUNTIF(legislators!F2:F,TRUE)/COUNTA(legislators!A2:A)</div>
-            <div class="step-desc" style="margin-top:8px">Format this cell as a percentage: select the cell → click the <code>%</code> button in the toolbar. This mirrors the "% of all legislators who belong to dynasties" KPI from the dashboard.</div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">9</div>
-          <div class="step-body">
-            <div class="step-title">KPI 4 — Largest Dynasty (Most Members)</div>
-            <div class="step-desc">Label: <code>Largest Dynasty</code>. In <code>C5</code> (name) and <code>D5</code> (count):</div>
-            <div class="formula-box">=INDEX(legislators!E2:E,MATCH(MAX(COUNTIF(legislators!E2:E,legislators!E2:E)),COUNTIF(legislators!E2:E,legislators!E2:E),0))
-
-=MAX(COUNTIF(legislators!E2:E,legislators!E2:E))</div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">10</div>
-          <div class="step-body">
-            <div class="step-title">KPI 5 — Multi-Generational Dynasties (3+ Members)</div>
-            <div class="step-desc">Label: <code>Major Dynasties (3+ members)</code>. In <code>C6</code>:</div>
-            <div class="formula-box">=SUMPRODUCT((COUNTIFS(legislators!E2:E,legislators!E2:E,legislators!F2:F,TRUE)>=3)*(EXACT(legislators!F2:F,"TRUE"))*(1/COUNTIF(legislators!E2:E,legislators!E2:E)))</div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">11</div>
-          <div class="step-body">
-            <div class="step-title">KPI 6 — Female Dynasty Members</div>
-            <div class="step-desc">Label: <code>Female in Dynasties</code>. In <code>C7</code>:</div>
-            <div class="formula-box">=COUNTIFS(legislators!F2:F,TRUE,legislators!G2:G,"F")</div>
-            <div class="step-desc" style="margin-top:8px">And the percentage — in <code>D7</code>:</div>
-            <div class="formula-box">=C7/COUNTIF(legislators!G2:G,"F")</div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">12</div>
-          <div class="step-body">
-            <div class="step-title">KPI 7 — Dynasty Seats by Region</div>
-            <div class="step-desc">Label: <code>Dynasty-Dominated Regions</code>. In <code>C8</code>, count regions where over 50% of legislators are dynasty members:</div>
-            <div class="formula-box">=SUMPRODUCT((COUNTIFS(legislators!C2:C,UNIQUE(legislators!C2:C),legislators!F2:F,TRUE)/COUNTIF(legislators!C2:C,UNIQUE(legislators!C2:C)))>0.5)</div>
-            <div class="tip-box">💡 <div>If UNIQUE() isn't available (older Sheets), use a helper column with <code>=UNIQUE(legislators!C2:C)</code> in a side area, then reference that range.</div></div>
-          </div>
-        </div>
-
-        <div class="guide-divider"></div>
-        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px">📊 Step 3 — Build the Dynasty Breakdown Pivot Table</div>
-
-        <div class="step">
-          <div class="step-num">13</div>
-          <div class="step-body">
-            <div class="step-title">Create a pivot table for dynasty family counts</div>
-            <div class="step-desc">Click any cell in the <code>legislators</code> sheet → <code>Insert → Pivot Table</code> → choose <code>New Sheet</code> → name it <code>dynasty_pivot</code>. Configure it:
-            <br><br>
-            • <b>Rows:</b> <code>clan</code><br>
-            • <b>Filter:</b> <code>is_dynasty = TRUE</code><br>
-            • <b>Values:</b> <code>full_name</code> — summarized by <code>COUNTA</code><br>
-            • <b>Sort:</b> Values descending (largest dynasties first)
-            </div>
-            <div class="tip-box">💡 <div>This pivot table will auto-refresh every time you add a new row to the legislators sheet. No manual refresh needed.</div></div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">14</div>
-          <div class="step-body">
-            <div class="step-title">Add a bar chart from the pivot table</div>
-            <div class="step-desc">Select the clan + count columns in the pivot table → <code>Insert → Chart</code> → choose <code>Bar chart</code>. In Chart Editor:
-            <br><br>
-            • Set <b>X-axis</b> to clan names<br>
-            • Set <b>Series</b> to member counts<br>
-            • Under <b>Customize → Chart style</b>: set background to a dark color (<code>#0A1628</code>) and bar color to <code>#C9922A</code> (gold) to match this dashboard's aesthetic
-            </div>
-          </div>
-        </div>
-
-        <div class="guide-divider"></div>
-        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px">⚡ Step 4 — Make It Live with Apps Script (Auto-Refresh)</div>
-
-        <div class="step">
-          <div class="step-num">15</div>
-          <div class="step-body">
-            <div class="step-title">Open the Apps Script editor</div>
-            <div class="step-desc">In your spreadsheet: <code>Extensions → Apps Script</code>. This opens a code editor where you can automate the spreadsheet.</div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">16</div>
-          <div class="step-body">
-            <div class="step-title">Add a script to auto-import from a Google Drive CSV</div>
-            <div class="step-desc">Delete any existing code and paste this. Replace <code>YOUR_FILE_ID</code> with the ID from your CSV file's Google Drive URL:</div>
-            <div class="formula-box">function importDynastyData() {
-  var fileId = "YOUR_FILE_ID"; // from Drive URL
-  var file = DriveApp.getFileById(fileId);
-  var csv = file.getBlob().getDataAsString();
-  var rows = Utilities.parseCsv(csv);
-  
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("legislators");
-  
-  sheet.clearContents();
-  sheet.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
-  
-  // Log the refresh time
-  var dashSheet = ss.getSheetByName("dashboard");
-  dashSheet.getRange("A1").setValue("Last updated: " + new Date().toLocaleString());
-}
-
-// Run every hour automatically:
-function createTimeTrigger() {
-  ScriptApp.newTrigger("importDynastyData")
-    .timeBased()
-    .everyHours(1)
-    .create();
-}</div>
-            <div class="step-desc" style="margin-top:8px">Click <b>Save</b> (floppy disk icon). Then click <b>Run</b> → select <code>createTimeTrigger</code> once to register the hourly auto-refresh. Grant permissions when prompted.</div>
-            <div class="warn-box">⚠️ <div>The first time you run any Apps Script function, Google will ask for permissions. Click <code>Advanced → Go to [project name]</code> and allow access. This is normal.</div></div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">17</div>
-          <div class="step-body">
-            <div class="step-title">Alternative: Use IMPORTDATA for a live web-hosted CSV</div>
-            <div class="step-desc">If your CSV is hosted online (e.g. a GitHub raw URL or public Google Drive link), you can skip Apps Script entirely. In cell <code>A1</code> of your legislators sheet:</div>
-            <div class="formula-box">=IMPORTDATA("https://your-csv-url-here.csv")</div>
-            <div class="step-desc" style="margin-top:8px">Google Sheets will re-fetch this CSV every ~60 minutes automatically. All formulas on the dashboard sheet will recalculate after each fetch.</div>
-            <div class="tip-box">💡 <div>To force an immediate refresh: delete the formula and retype it, or use <code>File → Settings → Calculation → On change and every minute</code>.</div></div>
-          </div>
-        </div>
-
-        <div class="guide-divider"></div>
-        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px">🎨 Step 5 — Style the Dashboard Sheet to Match This UI</div>
-
-        <div class="step">
-          <div class="step-num">18</div>
-          <div class="step-body">
-            <div class="step-title">Create KPI cards using merged cells + borders</div>
-            <div class="step-desc">
-              For each KPI, merge a 3×2 block of cells. Example for "Dynasty %":<br><br>
-              • Merge <code>B3:D3</code> → enter label text, set font to <code>Arial 9</code>, gray color <code>#6A82A0</code><br>
-              • Merge <code>B4:D4</code> → enter formula (e.g. <code>=C4</code>), set font to <code>Arial 24 Bold</code>, white<br>
-              • Add a thick top border in gold (<code>#C9922A</code>) using <code>Format → Borders</code><br>
-              • Set background to dark blue <code>#0F1F38</code>
-            </div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">19</div>
-          <div class="step-body">
-            <div class="step-title">Add conditional formatting to highlight dynasty legislators</div>
-            <div class="step-desc">Select the <code>is_dynasty</code> column in the legislators sheet → <code>Format → Conditional formatting</code>:<br><br>
-            • Rule 1: Cell is = <code>TRUE</code> → background <code>#2A1A08</code>, text color <code>#F0C96A</code> (gold)<br>
-            • Rule 2: Apply to the entire row using <code>Custom formula</code>: <code>=$F2=TRUE</code> on the full range <code>A2:J1000</code> → background <code>#2A1A08</code>
-            </div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">20</div>
-          <div class="step-body">
-            <div class="step-title">Freeze headers and protect source sheets</div>
-            <div class="step-desc">
-              • Freeze headers: <code>View → Freeze → 1 row</code> on both source sheets<br>
-              • Protect source data: right-click a sheet tab → <code>Protect sheet</code> → only allow editors to modify — this prevents accidental formula breakage<br>
-              • Hide source sheets from casual viewers: right-click tab → <code>Hide sheet</code> — they're still used by formulas
-            </div>
-            <div class="tip-box">💡 <div>Share the finished spreadsheet with view-only access for colleagues: <code>Share → Anyone with the link → Viewer</code>. They'll always see the latest data but can't break formulas.</div></div>
-          </div>
-        </div>
-
-        <div class="guide-divider"></div>
-        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px">🔗 Step 6 — Connect This HTML Dashboard to Your Google Sheet</div>
-
-        <div class="step">
-          <div class="step-num">21</div>
-          <div class="step-body">
-            <div class="step-title">Publish your Google Sheet as a CSV endpoint</div>
-            <div class="step-desc">In your Google Sheet: <code>File → Share → Publish to web</code> → select the <code>legislators</code> sheet → choose format <code>Comma-separated values (.csv)</code> → click <code>Publish</code>. Copy the URL shown — it looks like:<br><br>
-            <code>https://docs.google.com/spreadsheets/d/SHEET_ID/export?format=csv&gid=SHEET_GID</code>
-            </div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="step-num">22</div>
-          <div class="step-body">
-            <div class="step-title">Replace the static DB in this HTML file with a live fetch</div>
-            <div class="step-desc">Open this HTML file in a text editor. Find the <code>function init()</code> block. Replace the static <code>DB = {...}</code> assignment with:</div>
-            <div class="formula-box">async function init() {
-  const CSV_URL = "YOUR_PUBLISHED_CSV_URL_HERE";
-  const resp = await fetch(CSV_URL);
-  const text = await resp.text();
-  const rows = text.trim().split("\n").map(r => r.split(","));
-  const headers = rows[0];
-  
-  DB.p = rows.slice(1).map(r => ({
-    fn: r[0], n2: r[1], rg: r[2], di: r[3],
-    cl: r[4], dy: r[5] === "TRUE",
-    sx: r[6], tt: +r[7],
-    tr: r[9] ? r[9].split(";") : []
-  }));
-  
-  // ... rest of your init code
-  buildKPIs(); populateSelects(); doSearch();
-}</div>
-            <div class="step-desc" style="margin-top:8px">Now every time someone opens this HTML file, it fetches the latest data from your Google Sheet automatically — no manual updates needed.</div>
-            <div class="warn-box">⚠️ <div>This requires the HTML file to be served from a web server (not opened as a local file) due to browser CORS rules. Upload it to GitHub Pages, Netlify, or any static host for free.</div></div>
-          </div>
-        </div>
-
-        <div class="guide-divider"></div>
-
-        <div style="background:linear-gradient(135deg,var(--dynasty-bg),var(--navy2));border:1px solid var(--dynasty-border);border-radius:10px;padding:20px 24px">
-          <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:12px">📋 Quick Reference — All Formulas</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px">
-            <div>
-              <div style="color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-size:10px">Total Legislators</div>
-              <div class="formula-box" style="font-size:11px;padding:8px 12px">=COUNTA(legislators!A2:A)</div>
-            </div>
-            <div>
-              <div style="color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-size:10px">Number of Dynasties</div>
-              <div class="formula-box" style="font-size:11px;padding:8px 12px">=SUMPRODUCT((EXACT(legislators!F2:F,"TRUE"))*(1/COUNTIF(legislators!E2:E,legislators!E2:E)))</div>
-            </div>
-            <div>
-              <div style="color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-size:10px">Dynasty % of Congress</div>
-              <div class="formula-box" style="font-size:11px;padding:8px 12px">=COUNTIF(legislators!F2:F,TRUE)/COUNTA(legislators!A2:A)</div>
-            </div>
-            <div>
-              <div style="color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-size:10px">Largest Dynasty Name</div>
-              <div class="formula-box" style="font-size:11px;padding:8px 12px">=INDEX(legislators!E2:E,MATCH(MAX(COUNTIF(legislators!E2:E,legislators!E2:E)),COUNTIF(legislators!E2:E,legislators!E2:E),0))</div>
-            </div>
-            <div>
-              <div style="color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-size:10px">Major Dynasties (3+)</div>
-              <div class="formula-box" style="font-size:11px;padding:8px 12px">=SUMPRODUCT((COUNTIFS(legislators!E2:E,legislators!E2:E,legislators!F2:F,TRUE)>=3)*(EXACT(legislators!F2:F,"TRUE"))*(1/COUNTIF(legislators!E2:E,legislators!E2:E)))</div>
-            </div>
-            <div>
-              <div style="color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-size:10px">Female in Dynasties</div>
-              <div class="formula-box" style="font-size:11px;padding:8px 12px">=COUNTIFS(legislators!F2:F,TRUE,legislators!G2:G,"F")</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</main>
+  </main>
 
 <!-- DETAIL MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
@@ -713,16 +365,17 @@ function createTimeTrigger() {
 
 <script>
 // ============================================================
-//  STEP 1 — PASTE YOUR TWO GOOGLE SHEETS CSV URLS BELOW
-//  (File → Share → Publish to web → select sheet → CSV)
+//  GOOGLE SHEETS LIVE DATA — URLs already connected
 // ============================================================
-
-const LEGISLATORS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR_mvfBjl6NTQq78FAywFTwD4kndApHnnHu4QEH-FQ2m8pROHKSfofRp9hul4XJoA/pub?output=csv";
+const LEGISLATORS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR_mvfBjl6NTQq78FAywFTwD4kndApHnnHu4QEH-FQ2m8pROHKSfofRp9hul4XJoA/pub?gid=703765891&single=true&output=csv";
 const DISTRICTS_CSV_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXoUfNbQwjfqqLtXWlgBTwFKnx1CC7qD9bDk-dts1ogdawYr8LSFe7YF6T8H9-Yg/pub?gid=1021641418&single=true&output=csv";
 
-// ============================================================
-//  DO NOT EDIT ANYTHING BELOW THIS LINE
-// ============================================================
+// CORS proxies — tries each one in order until one works
+const CORS_PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://cors-anywhere.herokuapp.com/${url}`,
+];
 
 const DB = { p: [], d: [] };
 const ALL_CONGRESSES = [
@@ -730,35 +383,44 @@ const ALL_CONGRESSES = [
   '12th Congress','13th Congress','14th Congress','15th Congress',
   '16th Congress','17th Congress','18th Congress','19th Congress','20th Congress'
 ];
-const ALL_PERIODS = ALL_CONGRESSES;
-const MODERN_SET  = new Set(ALL_CONGRESSES);
+const MODERN_SET = new Set(ALL_CONGRESSES);
 let   ALL_REGIONS = [];
 const PAGE_SIZE   = 24;
+let searchResults = [], currentPage = 1, cardMode = 'cards';
+let debounceTimer = null, currentView = 'search';
 
-let searchResults = [];
-let currentPage   = 1;
-let cardMode      = 'cards';
-let debounceTimer = null;
-let currentView   = 'search';
+// ── FETCH WITH CORS PROXY FALLBACK ────────────────────────
+async function fetchCSV(originalUrl) {
+  // First try direct (works when hosted on GitHub Pages / web server)
+  try {
+    const r = await fetch(originalUrl, { mode: 'cors' });
+    if (r.ok) { const t = await r.text(); if (t.trim().length > 50) return t; }
+  } catch(e) {}
 
-// ── CSV PARSER (handles quoted commas and escaped quotes) ──
+  // Fall through CORS proxies
+  for (const proxyFn of CORS_PROXIES) {
+    try {
+      const r = await fetch(proxyFn(originalUrl));
+      if (r.ok) { const t = await r.text(); if (t.trim().length > 50) return t; }
+    } catch(e) {}
+  }
+  throw new Error('All fetch attempts failed for: ' + originalUrl);
+}
+
+// ── CSV PARSER ────────────────────────────────────────────
 function parseCSV(text) {
   const rows = [];
-  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
   for (const line of lines) {
     if (!line.trim()) continue;
-    const cols = [];
-    let cur = '', inQ = false;
+    const cols = []; let cur = '', inQ = false;
     for (let i = 0; i < line.length; i++) {
       const c = line[i];
       if (c === '"') {
         if (inQ && line[i+1] === '"') { cur += '"'; i++; }
         else inQ = !inQ;
-      } else if (c === ',' && !inQ) {
-        cols.push(cur.trim()); cur = '';
-      } else {
-        cur += c;
-      }
+      } else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else cur += c;
     }
     cols.push(cur.trim());
     rows.push(cols);
@@ -766,25 +428,53 @@ function parseCSV(text) {
   return rows;
 }
 
+// ── CONGRESS NAME NORMALISER ──────────────────────────────
+function normCongress(raw) {
+  if (!raw) return '';
+  const s = raw.trim();
+  const m = s.match(/^(\d+)(?:st|nd|rd|th)?\s+congress$/i);
+  if (!m) return s;
+  const n = parseInt(m[1]);
+  const sfx = n===11||n===12||n===13 ? 'th' : ['','st','nd','rd'][n%10] || 'th';
+  return `${n}${sfx} Congress`;
+}
+
+// ── STATUS HELPER ─────────────────────────────────────────
+function setStatus(msg, isError = false) {
+  const el = document.getElementById('resultsCount');
+  if (el) el.innerHTML = isError
+    ? `<span style="color:var(--red)">⚠️ ${msg}</span>`
+    : `<span style="color:var(--text3)">${msg}</span>`;
+}
+
 // ── INIT ──────────────────────────────────────────────────
 async function init() {
   document.getElementById('kpiRow').innerHTML =
-    `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);font-size:14px">
-       ⏳ Loading live data from Google Sheets…
+    `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text3)">
+       <div style="font-size:28px;margin-bottom:12px">⏳</div>
+       <div style="font-size:15px;font-weight:500">Loading live data from Google Sheets…</div>
+       <div style="font-size:12px;margin-top:6px;opacity:.6">Fetching legislators and districts</div>
      </div>`;
-  document.getElementById('resultsCount').textContent = 'Loading…';
 
-  await Promise.all([loadLegislators(), loadDistricts()]);
+  try {
+    await Promise.all([loadLegislators(), loadDistricts()]);
+  } catch(e) {
+    setStatus('Failed to load data. Make sure your Google Sheet is published as CSV (File → Share → Publish to web).', true);
+    return;
+  }
 
-  // Compute clan member counts after loading
+  if (!DB.p.length) {
+    setStatus('No legislator data received. Check that your roster sheet tab is published as CSV.', true);
+    return;
+  }
+
+  // Compute clan member counts
   const clanCounts = {};
-  DB.p.forEach(p => { if (p.cl) clanCounts[p.cl] = (clanCounts[p.cl]||0) + 1; });
+  DB.p.forEach(p => { if (p.cl) clanCounts[p.cl] = (clanCounts[p.cl]||0)+1; });
   DB.p.forEach(p => { if (p.cl) p.cm = clanCounts[p.cl]; });
 
-  // Build region list from both sources
   ALL_REGIONS = [...new Set([
-    ...DB.p.map(p => p.rg),
-    ...DB.d.map(d => d.rg)
+    ...DB.p.map(p=>p.rg), ...DB.d.map(d=>d.rg)
   ].filter(Boolean))].sort();
 
   buildKPIs();
@@ -794,207 +484,135 @@ async function init() {
 }
 
 // ── LOAD LEGISLATORS ──────────────────────────────────────
-// Your Google Sheet (roster tab) structure:
-//   Row 1-3: title rows (skipped)
-//   Row 4:   headers → NAME, NAME2, REGION/PROVINCE, DISTRICT,
-//                       PERIOD, YEARS, NOTES, AKA, FULLNAME, SEX,
-//                       BIRTHDATE, DIED_IN_OFFICE, CLAN,
-//                       House_Speaker_Start, House_Speaker_End, …
-//   Row 5+:  data (one row per congress term per person)
+// Roster sheet layout (as exported to CSV):
+//   Row 1 → "ROSTER of Philippine Legislators"   ← junk, skip
+//   Row 2 → "(from 1907 to 2022)"                ← junk, skip
+//   Row 3 → (blank)                              ← skip
+//   Row 4 → NAME, NAME2, REGION/PROVINCE, DISTRICT, PERIOD, YEARS,
+//            NOTES, AKA, FULLNAME, SEX, BIRTHDATE, DIED_IN_OFFICE,
+//            CLAN, House_Speaker_Start …          ← HEADER
+//   Row 5+ → data (one row per congress term per person)
 async function loadLegislators() {
-  try {
-    const resp = await fetch(LEGISLATORS_CSV_URL);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const rows = parseCSV(await resp.text());
+  const csv = await fetchCSV(LEGISLATORS_CSV_URL);
+  const rows = parseCSV(csv);
 
-    // Find the header row — it's the row containing "FULLNAME"
-    let headerIdx = rows.findIndex(r => r.some(c => c.toUpperCase() === 'FULLNAME'));
-    if (headerIdx < 0) headerIdx = 3; // fallback: row 4 (index 3)
+  // Find header row — the row that contains the word "FULLNAME"
+  let hi = rows.findIndex(r => r.some(c => c.trim().toUpperCase() === 'FULLNAME'));
+  if (hi < 0) hi = 3;
 
-    const headers = rows[headerIdx].map(h => h.trim().toUpperCase()
-      .replace(/[^A-Z0-9_]/g, '_').replace(/__+/g,'_'));
+  const headers = rows[hi].map(h =>
+    h.trim().toUpperCase().replace(/[^A-Z0-9]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')
+  );
+  const col = k => headers.indexOf(k);
 
-    const gi = k => headers.indexOf(k); // get index by header name
+  const iNAME  = col('NAME');
+  const iNAME2 = col('NAME2');
+  const iREG   = col('REGION_PROVINCE');
+  const iDIST  = col('DISTRICT');
+  const iPER   = col('PERIOD');
+  const iAKA   = col('AKA');
+  const iFN    = col('FULLNAME');
+  const iSEX   = col('SEX');
+  const iBD    = col('BIRTHDATE');
+  const iCLAN  = col('CLAN');
+  const iSPK   = col('HOUSE_SPEAKER_START');
+  const iLEAD  = col('HOUSE_LEADERSHIP');
 
-    // Column indices (matching your exact sheet)
-    const iNAME     = gi('NAME');
-    const iNAME2    = gi('NAME2');
-    const iREGION   = gi('REGION_PROVINCE');
-    const iDISTRICT = gi('DISTRICT');
-    const iPERIOD   = gi('PERIOD');
-    const iYEARS    = gi('YEARS');
-    const iAKA      = gi('AKA');
-    const iFULLNAME = gi('FULLNAME');
-    const iSEX      = gi('SEX');
-    const iBIRTH    = gi('BIRTHDATE');
-    const iCLAN     = gi('CLAN');
-    const iSPEAKER  = gi('HOUSE_SPEAKER_START');
-    const iLEAD     = gi('HOUSE_LEADERSHIP');
+  const personMap = new Map();
 
-    // Group rows by FULLNAME (each person has one row per term)
-    const personMap = new Map();
-    const dataRows  = rows.slice(headerIdx + 1);
+  for (const r of rows.slice(hi + 1)) {
+    const fn = (r[iFN]||'').trim();
+    if (!fn) continue;
 
-    for (const r of dataRows) {
-      const fn = (r[iFULLNAME] || '').trim();
-      if (!fn) continue;
-
-      if (!personMap.has(fn)) {
-        personMap.set(fn, {
-          fn,
-          n2: '', n: '', ak: '',
-          rg: '', di: '',
-          sx: '', bd: '', cl: null,
-          sp: false, ld: '',
-          tr: [], tt: 0, cm: 0
-        });
-      }
-
-      const p = personMap.get(fn);
-
-      // Fill fields only on the first/non-formula row
-      const rawName = r[iNAME] || '';
-      if (!rawName.startsWith('=') && rawName && !p.n2)
-        p.n2 = rawName;
-
-      const rawName2 = r[iNAME2] || '';
-      if (!rawName2.startsWith('=') && rawName2 && !p.n)
-        p.n = rawName2;
-
-      if (!p.rg  && r[iREGION])   p.rg = r[iREGION].trim();
-      if (!p.di  && r[iDISTRICT]) p.di = r[iDISTRICT].trim();
-      if (!p.sx  && r[iSEX])      p.sx = r[iSEX].trim();
-      if (!p.bd  && r[iBIRTH])    p.bd = r[iBIRTH].trim();
-      if (!p.cl  && r[iCLAN])     p.cl = r[iCLAN].trim();
-      if (!p.ld  && iLEAD >= 0 && r[iLEAD]) p.ld = r[iLEAD].trim();
-      if (!p.ak  && iAKA  >= 0 && r[iAKA])  p.ak = r[iAKA].trim();
-      if (!p.sp  && iSPEAKER >= 0 && r[iSPEAKER]) p.sp = true;
-
-      const period = (r[iPERIOD] || '').trim();
-      if (period) {
-        p.tt++;                               // total terms (all history)
-        const norm = normCongress(period);
-        if (MODERN_SET.has(norm)) p.tr.push(norm); // modern congresses only
-      }
+    if (!personMap.has(fn)) {
+      personMap.set(fn, {
+        fn, n2:'', n:'', ak:'', rg:'', di:'',
+        sx:'', bd:'', cl:null, sp:false, ld:'',
+        tr:[], tt:0, cm:0
+      });
     }
+    const p = personMap.get(fn);
 
-    // Normalise sex field
-    DB.p = [...personMap.values()].map(p => ({
-      ...p,
-      dy: Boolean(p.cl),
-      sx: p.sx.toLowerCase().startsWith('f') ? 'F' : 'M',
-      n2: p.n2 || p.fn,
-      n:  p.n  || p.n2 || p.fn,
-    }));
+    const rawName  = (r[iNAME] ||'').trim();
+    const rawName2 = (r[iNAME2]||'').trim();
+    if (rawName  && !rawName.startsWith('=')  && !p.n2) p.n2 = rawName;
+    if (rawName2 && !rawName2.startsWith('=') && !p.n)  p.n  = rawName2;
+    if (!p.rg && r[iREG])                  p.rg = r[iREG].trim();
+    if (!p.di && r[iDIST])                 p.di = r[iDIST].trim();
+    if (!p.sx && r[iSEX])                  p.sx = r[iSEX].trim();
+    if (!p.bd && r[iBD])                   p.bd = r[iBD].trim();
+    if (!p.cl && iCLAN>=0 && r[iCLAN])     p.cl = r[iCLAN].trim();
+    if (!p.ld && iLEAD>=0 && r[iLEAD])     p.ld = r[iLEAD].trim();
+    if (!p.ak && iAKA >=0 && r[iAKA])      p.ak = r[iAKA].trim();
+    if (!p.sp && iSPK >=0 && r[iSPK])      p.sp = true;
 
-    console.log(`Loaded ${DB.p.length} legislators`);
-  } catch (e) {
-    console.error('Failed to load legislators:', e);
-    showError('legislators');
+    const period = (r[iPER]||'').trim();
+    if (period) {
+      p.tt++;
+      const norm = normCongress(period);
+      if (MODERN_SET.has(norm)) p.tr.push(norm);
+    }
   }
+
+  DB.p = [...personMap.values()].map(p => ({
+    ...p,
+    dy: Boolean(p.cl),
+    sx: (p.sx||'').toLowerCase().startsWith('f') ? 'F' : 'M',
+    n2: p.n2 || p.fn,
+    n:  p.n  || p.n2 || p.fn,
+  }));
+
+  console.log(`✅ Legislators: ${DB.p.length} loaded, ${DB.p.filter(x=>x.dy).length} dynasty`);
 }
 
 // ── LOAD DISTRICTS ────────────────────────────────────────
-// Your Google Sheet (reps tab) structure:
-//   Row 1: headers → [Region col], District, 20th Congress, 19th congress, …, 8th Congress
-//   Row 2+: data
+// reps sheet layout:
+//   Row 1 → Region, District, 20th Congress, 19th congress, …, 8th Congress
+//   Row 2+ → data
 async function loadDistricts() {
-  try {
-    const resp = await fetch(DISTRICTS_CSV_URL);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const rows = parseCSV(await resp.text());
-    if (rows.length < 2) return;
+  const csv = await fetchCSV(DISTRICTS_CSV_URL);
+  const rows = parseCSV(csv);
+  if (rows.length < 2) return;
 
-    const hRow = rows[0];
-    // Cols: 0=Region, 1=District, 2..14 = congress columns (20th down to 8th)
-    const congCols = hRow.slice(2).map(h => normCongress(h || '')).filter(Boolean);
+  const congCols = rows[0].slice(2)
+    .map(h => normCongress(h||''))
+    .filter(h => MODERN_SET.has(h));
 
-    DB.d = rows.slice(1)
-      .filter(r => r[0] && r[1])
-      .map(r => {
-        const h = {};
-        congCols.forEach((c, i) => {
-          const val = (r[2 + i] || '').trim();
-          if (c) h[c] = val;
-        });
-        return { rg: r[0].trim(), di: r[1].trim(), h };
+  DB.d = rows.slice(1)
+    .filter(r => (r[0]||'').trim() && (r[1]||'').trim())
+    .map(r => {
+      const h = {};
+      rows[0].slice(2).forEach((raw, i) => {
+        const norm = normCongress(raw||'');
+        if (norm) h[norm] = (r[2+i]||'').trim();
       });
-
-    console.log(`Loaded ${DB.d.length} districts`);
-  } catch (e) {
-    console.error('Failed to load districts:', e);
-    showError('districts');
-  }
-}
-
-// ── CONGRESS NAME NORMALISER ──────────────────────────────
-// Handles: '19th congress', '19th Congress', '19th CONGRESS' → '19th Congress'
-function normCongress(raw) {
-  const s = raw.trim();
-  // Match patterns like "19th Congress", "19th congress", "19th Philippine Legislature", etc.
-  const m = s.match(/^(\d+(?:st|nd|rd|th)?)\s+congress$/i);
-  if (m) {
-    const num = m[1].replace(/^(\d+)(?:st|nd|rd|th)?$/i, (_, n) => {
-      const suf = ['th','st','nd','rd'];
-      const v = n % 100;
-      return n + (suf[(v-20)%10]||suf[v]||suf[0]);
+      return { rg: r[0].trim(), di: r[1].trim(), h };
     });
-    return num + ' Congress';
-  }
-  // Already in right format like "20th Congress"
-  if (MODERN_SET && MODERN_SET.has(s)) return s;
-  return s;
-}
 
-function showError(src) {
-  const el = document.getElementById('resultsCount');
-  if (el) el.innerHTML =
-    `<span style="color:var(--red)">⚠️ Could not load ${src} data. ` +
-    `Check your CSV URL is published correctly (File → Share → Publish to web → CSV).</span>`;
+  console.log(`✅ Districts: ${DB.d.length} loaded`);
 }
 
 // ── KPI BUILDER ───────────────────────────────────────────
 function buildKPIs() {
-  const p = DB.p;
-  const total        = p.length;
-  const dyMembers    = p.filter(x => x.dy).length;
-  const dyPct        = total ? (dyMembers / total * 100).toFixed(1) : 0;
+  const p = DB.p, total = p.length;
+  const dyM = p.filter(x=>x.dy).length;
+  const dyPct = total ? (dyM/total*100).toFixed(1) : 0;
+  const famC = {};
+  p.filter(x=>x.dy&&x.cl).forEach(x=>{famC[x.cl]=(famC[x.cl]||0)+1;});
+  const numFam = Object.keys(famC).length;
+  const majFam = Object.values(famC).filter(c=>c>=3).length;
+  const biggest = Object.entries(famC).sort((a,b)=>b[1]-a[1])[0];
+  const femDy = p.filter(x=>x.dy&&x.sx==='F').length;
+  const femPct = dyM ? (femDy/dyM*100).toFixed(0) : 0;
+  const spkrs = p.filter(x=>x.dy&&x.sp).length;
 
-  const familyCounts = {};
-  p.filter(x => x.dy && x.cl).forEach(x => {
-    familyCounts[x.cl] = (familyCounts[x.cl]||0) + 1;
-  });
-  const numFamilies   = Object.keys(familyCounts).length;
-  const majorFamilies = Object.values(familyCounts).filter(c => c >= 3).length;
-  const largest       = Object.entries(familyCounts).sort((a,b) => b[1]-a[1])[0];
-  const femaleDy      = p.filter(x => x.dy && x.sx === 'F').length;
-  const femalePct     = dyMembers ? (femaleDy / dyMembers * 100).toFixed(0) : 0;
-  const speakers      = p.filter(x => x.dy && x.sp).length;
-
-  const kpis = [
-    { label:'Dynasty Members',         val:dyMembers,
-      sub:`out of ${total} total legislators`,
-      icon:'👑', accent:'var(--gold)',
-      trend:`${dyPct}% of all legislators` },
-    { label:'% Dynasty-Held Seats',    val:dyPct+'%',
-      sub:'of all legislative seats',
-      icon:'📊', accent:'var(--red)',
-      trend:`Across all congresses tracked` },
-    { label:'Political Dynasty Families', val:numFamilies,
-      sub:'unique political clans',
-      icon:'🏰', accent:'var(--purple)',
-      trend:`${majorFamilies} with 3+ members` },
-    { label:'Largest Dynasty',         val:largest ? largest[1] : '—',
-      sub:largest ? largest[0] : '—',
-      icon:'⚜️', accent:'var(--gold-light)',
-      trend:'Members across all congresses' },
-    { label:'Women in Dynasties',      val:femaleDy,
-      sub:`${femalePct}% of dynasty members`,
-      icon:'♀', accent:'#C97EE0',
-      trend:`${speakers} Speaker(s) from dynasties` },
-  ];
-
-  document.getElementById('kpiRow').innerHTML = kpis.map(k => `
+  document.getElementById('kpiRow').innerHTML = [
+    { label:'Dynasty Members',           val:dyM,         sub:`out of ${total} total legislators`,   icon:'👑', accent:'var(--gold)',       trend:`${dyPct}% of all legislators` },
+    { label:'% Dynasty-Held Seats',      val:dyPct+'%',   sub:'of all legislative seats',            icon:'📊', accent:'var(--red)',        trend:'Across all congresses tracked' },
+    { label:'Political Dynasty Families',val:numFam,      sub:'unique political clans',              icon:'🏰', accent:'var(--purple)',     trend:`${majFam} with 3+ members` },
+    { label:'Largest Dynasty',           val:biggest?biggest[1]:'—', sub:biggest?biggest[0]:'—',    icon:'⚜️', accent:'var(--gold-light)', trend:'Members across all congresses' },
+    { label:'Women in Dynasties',        val:femDy,       sub:`${femPct}% of dynasty members`,       icon:'♀', accent:'#C97EE0',           trend:`${spkrs} Speaker(s) from dynasties` },
+  ].map(k=>`
     <div class="kpi-card" style="--accent-bar:${k.accent}">
       <div class="kpi-icon">${k.icon}</div>
       <div class="kpi-label">${k.label}</div>
@@ -1006,107 +624,78 @@ function buildKPIs() {
 
 // ── POPULATES ─────────────────────────────────────────────
 function populateSelects() {
-  ['congressSelect','dCongressSelect','cCongressSelect'].forEach(id => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    const def = sel.options[0].outerHTML;
-    sel.innerHTML = def + ALL_PERIODS.map(p =>
-      `<option value="${p}">${p}</option>`).join('');
+  ['congressSelect','dCongressSelect','cCongressSelect'].forEach(id=>{
+    const s=document.getElementById(id); if(!s) return;
+    const d=s.options[0].outerHTML;
+    s.innerHTML=d+ALL_CONGRESSES.map(c=>`<option value="${c}">${c}</option>`).join('');
   });
-  ['dRegionSelect','cRegionSelect'].forEach(id => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    const def = sel.options[0].outerHTML;
-    sel.innerHTML = def + ALL_REGIONS.map(r =>
-      `<option value="${r}">${r}</option>`).join('');
+  ['dRegionSelect','cRegionSelect'].forEach(id=>{
+    const s=document.getElementById(id); if(!s) return;
+    const d=s.options[0].outerHTML;
+    s.innerHTML=d+ALL_REGIONS.map(r=>`<option value="${r}">${r}</option>`).join('');
   });
 }
 
 // ── SEARCH ────────────────────────────────────────────────
-function debounceSearch() {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(doSearch, 250);
-}
+function debounceSearch(){clearTimeout(debounceTimer);debounceTimer=setTimeout(doSearch,250);}
 
-function doSearch() {
-  const q    = (document.getElementById('nameInput').value    || '').toLowerCase().trim();
-  const dq   = (document.getElementById('districtInput').value|| '').toLowerCase().trim();
-  const cong = document.getElementById('congressSelect').value;
-  const filt = document.getElementById('filterSelect').value;
-
-  searchResults = DB.p.filter(p => {
-    if (q) {
-      const hay = [p.fn, p.n2, p.n, p.ak].map(s => (s||'').toLowerCase()).join(' ');
-      if (!hay.includes(q)) return false;
-    }
-    if (dq) {
-      const dd = [(p.di||''), (p.rg||'')].map(s => s.toLowerCase()).join(' ');
-      if (!dd.includes(dq)) return false;
-    }
-    if (cong && !(p.tr||[]).includes(cong)) return false;
-    if (filt === 'dynasty'   && !p.dy)          return false;
-    if (filt === 'female'    && p.sx !== 'F')    return false;
-    if (filt === 'male'      && p.sx !== 'M')    return false;
-    if (filt === 'multiterm' && (p.tt||0) < 3)   return false;
+function doSearch(){
+  const q   =(document.getElementById('nameInput').value||'').toLowerCase().trim();
+  const dq  =(document.getElementById('districtInput').value||'').toLowerCase().trim();
+  const cong=document.getElementById('congressSelect').value;
+  const filt=document.getElementById('filterSelect').value;
+  searchResults=DB.p.filter(p=>{
+    if(q    && !([p.fn,p.n2,p.n,p.ak].map(s=>(s||'').toLowerCase()).join(' ')).includes(q)) return false;
+    if(dq   && ![(p.di||''),(p.rg||'')].map(s=>s.toLowerCase()).join(' ').includes(dq)) return false;
+    if(cong && !(p.tr||[]).includes(cong)) return false;
+    if(filt==='dynasty'   && !p.dy)        return false;
+    if(filt==='female'    && p.sx!=='F')   return false;
+    if(filt==='male'      && p.sx!=='M')   return false;
+    if(filt==='multiterm' && p.tt<3)       return false;
     return true;
   });
-
-  currentPage = 1;
-  renderResults();
+  currentPage=1; renderResults();
 }
 
-function clearSearch() {
-  ['nameInput','districtInput'].forEach(id => document.getElementById(id).value = '');
-  ['congressSelect','filterSelect'].forEach(id => document.getElementById(id).value = '');
+function clearSearch(){
+  ['nameInput','districtInput'].forEach(id=>document.getElementById(id).value='');
+  ['congressSelect','filterSelect'].forEach(id=>document.getElementById(id).value='');
   doSearch();
 }
 
-// ── RENDER RESULTS ────────────────────────────────────────
-function renderResults() {
-  const total = searchResults.length;
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const page  = searchResults.slice(start, start + PAGE_SIZE);
-
-  document.getElementById('resultsCount').innerHTML =
-    `Showing <span>${Math.min(start + PAGE_SIZE, total).toLocaleString()}</span>` +
-    ` of <span>${total.toLocaleString()}</span> legislators`;
-
-  if (cardMode === 'cards') renderCards(page);
-  else                      renderTable(page);
+// ── RENDER ────────────────────────────────────────────────
+function renderResults(){
+  const total=searchResults.length;
+  const start=(currentPage-1)*PAGE_SIZE;
+  const page=searchResults.slice(start,start+PAGE_SIZE);
+  document.getElementById('resultsCount').innerHTML=
+    `Showing <span>${Math.min(start+PAGE_SIZE,total).toLocaleString()}</span> of <span>${total.toLocaleString()}</span> legislators`;
+  cardMode==='cards' ? renderCards(page) : renderTable(page);
   renderPagination(total);
 }
 
-function renderCards(items) {
-  document.getElementById('cardsView').style.display = '';
-  document.getElementById('tableView').style.display = 'none';
-  if (!items.length) {
-    document.getElementById('cardsView').innerHTML =
-      `<div class="empty"><div class="empty-icon">🔍</div>
-       <div class="empty-text">No legislators found.</div></div>`;
-    return;
-  }
-  document.getElementById('cardsView').innerHTML =
-    `<div class="person-grid fade-in">${items.map(personCard).join('')}</div>`;
+function renderCards(items){
+  document.getElementById('cardsView').style.display='';
+  document.getElementById('tableView').style.display='none';
+  if(!items.length){document.getElementById('cardsView').innerHTML=emptyState('🔍','No legislators found.');return;}
+  document.getElementById('cardsView').innerHTML=`<div class="person-grid fade-in">${items.map(personCard).join('')}</div>`;
 }
 
-function personCard(p) {
-  const tags = [];
-  if (p.rg) tags.push(`<span class="tag tag-region">${p.rg}</span>`);
-  if (p.dy) tags.push(`<span class="tag tag-dynasty">👑 Dynasty</span>`);
-  if (p.sx === 'F') tags.push(`<span class="tag tag-female">♀ Female</span>`);
-  if (p.sp) tags.push(`<span class="tag tag-speaker">🏛 Speaker</span>`);
-  const first = p.tr && p.tr.length ? p.tr[0] : '—';
-  const last  = p.tr && p.tr.length ? p.tr[p.tr.length-1] : '—';
+function personCard(p){
+  const tags=[];
+  if(p.rg)   tags.push(`<span class="tag tag-region">${p.rg}</span>`);
+  if(p.dy)   tags.push(`<span class="tag tag-dynasty">👑 Dynasty</span>`);
+  if(p.sx==='F') tags.push(`<span class="tag tag-female">♀ Female</span>`);
+  if(p.sp)   tags.push(`<span class="tag tag-speaker">🏛 Speaker</span>`);
+  const first=p.tr&&p.tr.length?p.tr[0]:'—';
+  const last =p.tr&&p.tr.length?p.tr[p.tr.length-1]:'—';
   return `<div class="person-card ${p.dy?'dynasty':''}" onclick="openModal('${encodeURIComponent(p.fn)}')">
-    <div class="pc-name">${p.fn || p.n2 || 'Unknown'}</div>
-    <div class="pc-name2">${p.n2 || ''}</div>
+    <div class="pc-name">${p.fn||p.n2||'Unknown'}</div>
+    <div class="pc-name2">${p.n2||''}</div>
     <div class="pc-tags">${tags.join('')}</div>
-    ${p.cl ? `<div style="font-size:12px;color:var(--gold-dim);margin-bottom:8px">🏰 ${p.cl}</div>` : ''}
+    ${p.cl?`<div style="font-size:12px;color:var(--gold-dim);margin-bottom:8px">🏰 ${p.cl}</div>`:''}
     <div class="pc-stats">
-      <div class="pc-stat">
-        <div class="pc-stat-val">${p.tt||0}</div>
-        <div class="pc-stat-lbl">Terms</div>
-      </div>
+      <div class="pc-stat"><div class="pc-stat-val">${p.tt||0}</div><div class="pc-stat-lbl">Terms</div></div>
       <div class="pc-stat" style="text-align:left;flex:1;padding-left:16px">
         <div style="font-size:11px;color:var(--text3)">First: ${first}</div>
         <div style="font-size:11px;color:var(--text3)">Last: ${last}</div>
@@ -1115,227 +704,179 @@ function personCard(p) {
   </div>`;
 }
 
-function renderTable(items) {
-  document.getElementById('cardsView').style.display = 'none';
-  document.getElementById('tableView').style.display = '';
-  if (!items.length) {
-    document.getElementById('tableView').innerHTML =
-      `<div class="empty"><div class="empty-icon">🔍</div>
-       <div class="empty-text">No results found.</div></div>`;
-    return;
-  }
-  const rows = items.map(p => `
-    <tr onclick="openModal('${encodeURIComponent(p.fn)}')">
-      <td>${p.fn || p.n2}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px">${p.n2||''}</td>
-      <td>${p.rg||'—'}</td>
-      <td>${p.di||'—'}</td>
-      <td class="${p.dy?'dynasty-cell':''}">${p.cl||'—'}</td>
-      <td style="text-align:center">${p.tt||0}</td>
-      <td>${p.sx==='F'?'Female':p.sx==='M'?'Male':'—'}</td>
-      <td>${p.tr&&p.tr.length ? p.tr[p.tr.length-1] : '—'}</td>
-    </tr>`).join('');
-  document.getElementById('tableView').innerHTML = `
-    <div class="district-table-wrap">
-      <table>
-        <thead><tr>
-          <th>Full Name</th><th>Sort Name</th><th>Region</th><th>District</th>
-          <th>Clan / Dynasty</th><th>Terms</th><th>Sex</th><th>Last Congress</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
+function renderTable(items){
+  document.getElementById('cardsView').style.display='none';
+  document.getElementById('tableView').style.display='';
+  if(!items.length){document.getElementById('tableView').innerHTML=emptyState('🔍','No results found.');return;}
+  document.getElementById('tableView').innerHTML=`
+    <div class="district-table-wrap"><table>
+      <thead><tr>
+        <th>Full Name</th><th>Sort Name</th><th>Region</th><th>District</th>
+        <th>Clan / Dynasty</th><th>Terms</th><th>Sex</th><th>Last Congress</th>
+      </tr></thead>
+      <tbody>${items.map(p=>`
+        <tr onclick="openModal('${encodeURIComponent(p.fn)}')">
+          <td>${p.fn||p.n2}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">${p.n2||''}</td>
+          <td>${p.rg||'—'}</td><td>${p.di||'—'}</td>
+          <td class="${p.dy?'dynasty-cell':''}">${p.cl||'—'}</td>
+          <td style="text-align:center">${p.tt||0}</td>
+          <td>${p.sx==='F'?'Female':p.sx==='M'?'Male':'—'}</td>
+          <td>${p.tr&&p.tr.length?p.tr[p.tr.length-1]:'—'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>`;
 }
 
-function renderPagination(total) {
-  const pages = Math.ceil(total / PAGE_SIZE);
-  if (pages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
-  let btns = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
-  pageRange(currentPage, pages).forEach(p => {
-    if (p === '…') btns += `<span style="padding:6px 4px;color:var(--text3)">…</span>`;
-    else btns += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+function renderPagination(total){
+  const pages=Math.ceil(total/PAGE_SIZE);
+  if(pages<=1){document.getElementById('pagination').innerHTML='';return;}
+  let b=`<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+  pageRange(currentPage,pages).forEach(p=>{
+    b += p==='…'
+      ? `<span style="padding:6px 4px;color:var(--text3)">…</span>`
+      : `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
   });
-  btns += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>`;
-  document.getElementById('pagination').innerHTML = btns;
+  b+=`<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>`;
+  document.getElementById('pagination').innerHTML=b;
 }
 
-function pageRange(cur, total) {
-  if (total <= 7) return Array.from({length:total}, (_,i) => i+1);
-  if (cur <= 4)   return [1,2,3,4,5,'…',total];
-  if (cur >= total-3) return [1,'…',total-4,total-3,total-2,total-1,total];
+function pageRange(cur,total){
+  if(total<=7) return Array.from({length:total},(_,i)=>i+1);
+  if(cur<=4)   return [1,2,3,4,5,'…',total];
+  if(cur>=total-3) return [1,'…',total-4,total-3,total-2,total-1,total];
   return [1,'…',cur-1,cur,cur+1,'…',total];
 }
 
-function goPage(p) {
-  const pages = Math.ceil(searchResults.length / PAGE_SIZE);
-  if (p < 1 || p > pages) return;
-  currentPage = p;
-  renderResults();
-  window.scrollTo({top: 180, behavior: 'smooth'});
+function goPage(p){
+  const pages=Math.ceil(searchResults.length/PAGE_SIZE);
+  if(p<1||p>pages) return;
+  currentPage=p; renderResults();
+  window.scrollTo({top:180,behavior:'smooth'});
 }
 
-function setCardView(mode, btn) {
-  cardMode = mode;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  renderResults();
+function setCardView(mode,btn){
+  cardMode=mode;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active'); renderResults();
+}
+
+function emptyState(icon,text){
+  return `<div class="empty"><div class="empty-icon">${icon}</div><div class="empty-text">${text}</div></div>`;
 }
 
 // ── MODAL ─────────────────────────────────────────────────
-function openModal(encodedName) {
-  const name = decodeURIComponent(encodedName);
-  const p = DB.p.find(x => x.fn === name || x.n2 === name || x.n === name);
-  if (!p) return;
-
-  document.getElementById('modalName').textContent  = p.fn || p.n2 || p.n;
-  document.getElementById('modalName2').textContent = p.n2 + (p.ak ? ' · AKA: ' + p.ak : '');
-
-  const infoItems = [
-    { lbl:'Sex',               val: p.sx==='F'?'Female':p.sx==='M'?'Male':'Unknown' },
-    { lbl:'Birthdate',         val: p.bd || '—' },
-    { lbl:'Region / Province', val: p.rg || '—' },
-    { lbl:'District',          val: p.di || '—' },
-    { lbl:'Dynasty / Clan',    val: p.cl || 'None', cls: p.dy?'dynasty':'' },
-    { lbl:'Clan Members',      val: p.cm >= 2 ? p.cm + ' members in Congress' : '—' },
-    { lbl:'Total Terms Served',val: p.tt || 0 },
-    { lbl:'House Leadership',  val: p.ld || '—' },
+function openModal(encodedName){
+  const name=decodeURIComponent(encodedName);
+  const p=DB.p.find(x=>x.fn===name||x.n2===name);
+  if(!p) return;
+  document.getElementById('modalName').textContent=p.fn||p.n2;
+  document.getElementById('modalName2').textContent=p.n2+(p.ak?' · AKA: '+p.ak:'');
+  const info=[
+    {lbl:'Sex',              val:p.sx==='F'?'Female':p.sx==='M'?'Male':'Unknown'},
+    {lbl:'Birthdate',        val:p.bd||'—'},
+    {lbl:'Region/Province',  val:p.rg||'—'},
+    {lbl:'District',         val:p.di||'—'},
+    {lbl:'Dynasty / Clan',   val:p.cl||'None', cls:p.dy?'dynasty':''},
+    {lbl:'Clan Members',     val:p.cm>=2?p.cm+' members in Congress':'—'},
+    {lbl:'Total Terms',      val:p.tt||0},
+    {lbl:'House Leadership', val:p.ld||'—'},
   ];
-
-  const infoHtml = `<div class="info-grid">${infoItems.map(i => `
-    <div class="info-item">
-      <div class="info-lbl">${i.lbl}</div>
-      <div class="info-val ${i.cls||''}">${i.val}</div>
-    </div>`).join('')}</div>`;
-
-  let timelineHtml = '';
-  if (p.tr && p.tr.length) {
-    timelineHtml = `<div class="section-head">📅 Congress Timeline</div>
-      <div class="timeline">${p.tr.map(period => `
-        <div class="tl-item">
-          <div class="tl-dot"></div>
-          <div><div class="tl-period">${period}</div></div>
-        </div>`).join('')}</div>`;
+  let html=`<div class="info-grid">${info.map(i=>`
+    <div class="info-item"><div class="info-lbl">${i.lbl}</div>
+    <div class="info-val ${i.cls||''}">${i.val}</div></div>`).join('')}</div>`;
+  if(p.tr&&p.tr.length){
+    html+=`<div class="section-head">📅 Congress Timeline</div>
+    <div class="timeline">${p.tr.map(per=>`
+      <div class="tl-item"><div class="tl-dot"></div>
+      <div class="tl-period">${per}</div></div>`).join('')}</div>`;
   }
-
-  let clanHtml = '';
-  if (p.cl && p.dy) {
-    const mates = DB.p.filter(x => x.cl === p.cl && x.fn !== p.fn).slice(0, 10);
-    if (mates.length) {
-      clanHtml = `<div class="section-divider"></div>
-        <div class="section-head">👑 Dynasty Members — ${p.cl}</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          ${mates.map(m => `
-            <div style="display:flex;justify-content:space-between;align-items:center;
-              padding:10px 14px;background:var(--dynasty-bg);border:1px solid var(--dynasty-border);
-              border-radius:8px;cursor:pointer"
-              onclick="openModal('${encodeURIComponent(m.fn)}')">
-              <div>
-                <div style="font-size:14px;color:var(--text)">${m.fn||m.n2}</div>
-                <div style="font-size:12px;color:var(--text3)">${m.rg||''} · ${m.tt} terms</div>
-              </div>
-              <span style="font-size:18px">›</span>
-            </div>`).join('')}
-        </div>`;
+  if(p.cl&&p.dy){
+    const mates=DB.p.filter(x=>x.cl===p.cl&&x.fn!==p.fn).slice(0,10);
+    if(mates.length){
+      html+=`<div class="section-divider"></div>
+      <div class="section-head">👑 Dynasty Members — ${p.cl}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${mates.map(m=>`
+          <div onclick="openModal('${encodeURIComponent(m.fn)}')"
+            style="display:flex;justify-content:space-between;align-items:center;
+            padding:10px 14px;background:var(--dynasty-bg);border:1px solid var(--dynasty-border);
+            border-radius:8px;cursor:pointer">
+            <div>
+              <div style="font-size:14px;color:var(--text)">${m.fn||m.n2}</div>
+              <div style="font-size:12px;color:var(--text3)">${m.rg||''} · ${m.tt} terms</div>
+            </div>
+            <span style="font-size:18px">›</span>
+          </div>`).join('')}
+      </div>`;
     }
   }
-
-  document.getElementById('modalBody').innerHTML = infoHtml + timelineHtml + clanHtml;
+  document.getElementById('modalBody').innerHTML=html;
   document.getElementById('modalOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
 }
 
-function closeModal(e) {
-  if (e && e.target !== document.getElementById('modalOverlay')) return;
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('modalOverlay')) return;
   document.getElementById('modalOverlay').classList.remove('open');
-  document.body.style.overflow = '';
+  document.body.style.overflow='';
 }
 
 // ── DISTRICTS VIEW ────────────────────────────────────────
-function renderDistrictHeader() {
-  document.getElementById('districtThead').innerHTML = `<tr>
+function renderDistrictHeader(){
+  document.getElementById('districtThead').innerHTML=`<tr>
     <th style="min-width:200px">Region</th>
     <th style="min-width:220px">District</th>
-    ${ALL_CONGRESSES.map(c => `<th style="min-width:120px">${c}</th>`).join('')}
+    ${ALL_CONGRESSES.map(c=>`<th style="min-width:120px">${c}</th>`).join('')}
   </tr>`;
 }
 
-function renderDistricts() {
-  const q    = (document.getElementById('dSearchInput').value||'').toLowerCase();
-  const reg  = document.getElementById('dRegionSelect').value;
-  const cong = document.getElementById('dCongressSelect').value;
-
-  let filtered = DB.d.filter(d => {
-    if (reg && d.rg !== reg) return false;
-    if (q && !(d.rg||'').toLowerCase().includes(q) &&
-             !(d.di||'').toLowerCase().includes(q)) return false;
-    if (cong && !d.h[cong]) return false;
+function renderDistricts(){
+  const q   =(document.getElementById('dSearchInput').value||'').toLowerCase();
+  const reg =document.getElementById('dRegionSelect').value;
+  const cong=document.getElementById('dCongressSelect').value;
+  const dynSet=new Set(DB.p.filter(x=>x.dy).flatMap(x=>[x.n2,x.fn].filter(Boolean).map(s=>s.toLowerCase())));
+  let rows='', curReg='';
+  DB.d.filter(d=>{
+    if(reg&&d.rg!==reg) return false;
+    if(q&&!(d.rg||'').toLowerCase().includes(q)&&!(d.di||'').toLowerCase().includes(q)) return false;
+    if(cong&&!d.h[cong]) return false;
     return true;
-  });
-
-  // Build a Set of dynasty member sort-names for fast lookup
-  const dynSet = new Set(DB.p.filter(x => x.dy).flatMap(x =>
-    [x.n2, x.fn].filter(Boolean).map(s => s.toLowerCase())
-  ));
-
-  let curRegion = '', rows = '';
-  filtered.forEach(d => {
-    if (d.rg !== curRegion) {
-      curRegion = d.rg;
-      rows += `<tr class="region-row">
-        <td colspan="${2 + ALL_CONGRESSES.length}">${d.rg}</td>
-      </tr>`;
+  }).forEach(d=>{
+    if(d.rg!==curReg){
+      curReg=d.rg;
+      rows+=`<tr class="region-row"><td colspan="${2+ALL_CONGRESSES.length}">${d.rg}</td></tr>`;
     }
-    const cells = ALL_CONGRESSES.map(c => {
-      const rep = d.h[c] || '';
-      const isDyn = rep && dynSet.has(rep.toLowerCase());
-      return `<td title="${rep}"
-        ${isDyn ? 'style="color:var(--gold);font-weight:600"' : ''}>
-        ${rep || '—'}
-      </td>`;
-    }).join('');
-    rows += `<tr>
-      <td>${d.rg}</td>
-      <td style="font-weight:500">${d.di}</td>
-      ${cells}
-    </tr>`;
+    rows+=`<tr><td>${d.rg}</td><td style="font-weight:500">${d.di}</td>
+      ${ALL_CONGRESSES.map(c=>{
+        const rep=d.h[c]||'';
+        const isDyn=rep&&dynSet.has(rep.toLowerCase());
+        return `<td title="${rep}" ${isDyn?'style="color:var(--gold);font-weight:600"':''}>${rep||'—'}</td>`;
+      }).join('')}</tr>`;
   });
-
-  document.getElementById('districtTbody').innerHTML = rows ||
-    `<tr><td colspan="15" style="text-align:center;padding:40px;color:var(--text3)">
-      No districts match.
-    </td></tr>`;
+  document.getElementById('districtTbody').innerHTML=rows||
+    `<tr><td colspan="15" style="text-align:center;padding:40px;color:var(--text3)">No districts match.</td></tr>`;
 }
 
 // ── DYNASTIES VIEW ────────────────────────────────────────
-function renderDynasties() {
-  const q   = (document.getElementById('clanSearchInput').value||'').toLowerCase();
-  const min = parseInt(document.getElementById('clanMinSelect').value) || 2;
-
-  const clanMap = {};
-  DB.p.forEach(p => {
-    if (!p.cl || !p.dy) return;
-    if (!clanMap[p.cl]) clanMap[p.cl] = { name: p.cl, members: [], count: 0 };
-    clanMap[p.cl].members.push(p);
-    clanMap[p.cl].count++;
+function renderDynasties(){
+  const q  =(document.getElementById('clanSearchInput').value||'').toLowerCase();
+  const min=parseInt(document.getElementById('clanMinSelect').value)||2;
+  const clanMap={};
+  DB.p.forEach(p=>{
+    if(!p.cl||!p.dy) return;
+    if(!clanMap[p.cl]) clanMap[p.cl]={name:p.cl,members:[],count:0};
+    clanMap[p.cl].members.push(p); clanMap[p.cl].count++;
   });
-
-  let clans = Object.values(clanMap).filter(c => c.count >= min);
-  if (q) clans = clans.filter(c => c.name.toLowerCase().includes(q));
-  clans.sort((a,b) => b.count - a.count);
-
-  if (!clans.length) {
-    document.getElementById('dynastyContent').innerHTML =
-      `<div class="empty"><div class="empty-icon">👑</div>
-       <div class="empty-text">No dynasties found.</div></div>`;
-    return;
-  }
-
-  document.getElementById('dynastyContent').innerHTML = clans.map(c => {
-    const members = c.members.slice(0, 8).map(m => `
+  let clans=Object.values(clanMap).filter(c=>c.count>=min);
+  if(q) clans=clans.filter(c=>c.name.toLowerCase().includes(q));
+  clans.sort((a,b)=>b.count-a.count);
+  if(!clans.length){document.getElementById('dynastyContent').innerHTML=emptyState('👑','No dynasties found.');return;}
+  document.getElementById('dynastyContent').innerHTML=clans.map(c=>{
+    const ms=c.members.slice(0,8).map(m=>`
       <div onclick="openModal('${encodeURIComponent(m.fn)}')"
         style="display:flex;justify-content:space-between;align-items:center;
-          padding:8px 12px;background:var(--navy2);border-radius:6px;cursor:pointer;
-          transition:background .15s"
+        padding:8px 12px;background:var(--navy2);border-radius:6px;cursor:pointer;transition:background .15s"
         onmouseover="this.style.background='var(--surface3)'"
         onmouseout="this.style.background='var(--navy2)'">
         <div>
@@ -1344,104 +885,64 @@ function renderDynasties() {
         </div>
         <span style="color:var(--text3)">›</span>
       </div>`).join('');
-    const extra = c.count > 8
-      ? `<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px">
-           +${c.count - 8} more members
-         </div>` : '';
+    const extra=c.count>8?`<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px">+${c.count-8} more members</div>`:'';
     return `
-      <div style="background:var(--dynasty-bg);border:1px solid var(--dynasty-border);
-        border-radius:12px;padding:20px;margin-bottom:16px">
+      <div style="background:var(--dynasty-bg);border:1px solid var(--dynasty-border);border-radius:12px;padding:20px;margin-bottom:16px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <div>
-            <div style="font-family:'Playfair Display',serif;font-size:18px;
-              color:var(--gold-light)">${c.name}</div>
-            <div style="font-size:12px;color:var(--text3);margin-top:2px">
-              ${c.count} members across all congresses
-            </div>
+            <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--gold-light)">${c.name}</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px">${c.count} members across all congresses</div>
           </div>
-          <div style="font-family:'DM Mono',monospace;font-size:36px;
-            color:var(--gold);opacity:.6">${c.count}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:36px;color:var(--gold);opacity:.6">${c.count}</div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">
-          ${members}${extra}
-        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">${ms}${extra}</div>
       </div>`;
   }).join('');
 }
 
 // ── CONGRESS VIEW ─────────────────────────────────────────
-function renderCongressView() {
-  const cong = document.getElementById('cCongressSelect').value;
-  const reg  = document.getElementById('cRegionSelect').value;
-  const sex  = document.getElementById('cSexSelect').value;
-
-  if (!cong) {
-    document.getElementById('congressContent').innerHTML =
-      `<div class="empty"><div class="empty-icon">📜</div>
-       <div class="empty-text">Select a Congress period above.</div></div>`;
-    return;
-  }
-
-  const members = DB.p.filter(p => {
-    if (!(p.tr||[]).includes(cong)) return false;
-    if (reg && p.rg !== reg) return false;
-    if (sex && p.sx !== sex) return false;
+function renderCongressView(){
+  const cong=document.getElementById('cCongressSelect').value;
+  const reg =document.getElementById('cRegionSelect').value;
+  const sex =document.getElementById('cSexSelect').value;
+  if(!cong){document.getElementById('congressContent').innerHTML=emptyState('📜','Select a Congress period above.');return;}
+  const members=DB.p.filter(p=>{
+    if(!(p.tr||[]).includes(cong)) return false;
+    if(reg&&p.rg!==reg) return false;
+    if(sex&&p.sx!==sex) return false;
     return true;
   });
-
-  const dynCount   = members.filter(p => p.dy).length;
-  const femCount   = members.filter(p => p.sx === 'F').length;
-  const dynFamilies= [...new Set(members.filter(p=>p.dy&&p.cl).map(p=>p.cl))].length;
-  const tot        = members.length || 1;
-
-  document.getElementById('congressContent').innerHTML = `
+  const dynC=members.filter(p=>p.dy).length;
+  const femC=members.filter(p=>p.sx==='F').length;
+  const dynF=[...new Set(members.filter(p=>p.dy&&p.cl).map(p=>p.cl))].length;
+  const tot=members.length||1;
+  document.getElementById('congressContent').innerHTML=`
     <div class="kpi-row" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px">
-      <div class="kpi-card" style="--accent-bar:var(--blue)">
-        <div class="kpi-label">Members</div>
-        <div class="kpi-value">${members.length}</div>
-        <div class="kpi-sub">in ${cong}</div>
-      </div>
-      <div class="kpi-card" style="--accent-bar:var(--gold)">
-        <div class="kpi-label">Dynasty Members</div>
-        <div class="kpi-value">${dynCount}</div>
-        <div class="kpi-sub">${(dynCount/tot*100).toFixed(1)}% of congress</div>
-      </div>
-      <div class="kpi-card" style="--accent-bar:var(--purple)">
-        <div class="kpi-label">Dynasty Families</div>
-        <div class="kpi-value">${dynFamilies}</div>
-        <div class="kpi-sub">unique clans</div>
-      </div>
-      <div class="kpi-card" style="--accent-bar:#C97EE0">
-        <div class="kpi-label">Female Legislators</div>
-        <div class="kpi-value">${femCount}</div>
-        <div class="kpi-sub">${(femCount/tot*100).toFixed(1)}%</div>
-      </div>
-      <div class="kpi-card" style="--accent-bar:var(--green)">
-        <div class="kpi-label">Regions</div>
-        <div class="kpi-value">${[...new Set(members.map(p=>p.rg).filter(Boolean))].length}</div>
-        <div class="kpi-sub">represented</div>
-      </div>
+      <div class="kpi-card" style="--accent-bar:var(--blue)"><div class="kpi-label">Members</div><div class="kpi-value">${members.length}</div><div class="kpi-sub">in ${cong}</div></div>
+      <div class="kpi-card" style="--accent-bar:var(--gold)"><div class="kpi-label">Dynasty Members</div><div class="kpi-value">${dynC}</div><div class="kpi-sub">${(dynC/tot*100).toFixed(1)}%</div></div>
+      <div class="kpi-card" style="--accent-bar:var(--purple)"><div class="kpi-label">Dynasty Families</div><div class="kpi-value">${dynF}</div><div class="kpi-sub">unique clans</div></div>
+      <div class="kpi-card" style="--accent-bar:#C97EE0"><div class="kpi-label">Female Legislators</div><div class="kpi-value">${femC}</div><div class="kpi-sub">${(femC/tot*100).toFixed(1)}%</div></div>
+      <div class="kpi-card" style="--accent-bar:var(--green)"><div class="kpi-label">Regions</div><div class="kpi-value">${[...new Set(members.map(p=>p.rg).filter(Boolean))].length}</div><div class="kpi-sub">represented</div></div>
     </div>
     <div class="person-grid fade-in">${members.map(personCard).join('')}</div>`;
 }
 
 // ── NAV ───────────────────────────────────────────────────
-function showView(view) {
-  currentView = view;
-  ['search','districts','dynasties','congress','guide'].forEach(v => {
-    document.getElementById('view-' + v).style.display = v === view ? '' : 'none';
+function showView(view){
+  currentView=view;
+  ['search','districts','dynasties','congress'].forEach(v=>{
+    document.getElementById('view-'+v).style.display=v===view?'':'none';
   });
-  document.querySelectorAll('.nav-btn').forEach((b, i) => {
-    b.classList.toggle('active',
-      ['search','districts','dynasties','congress','guide'][i] === view);
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['search','districts','dynasties','congress'][i]===view);
   });
-  if (view === 'dynasties') renderDynasties();
-  if (view === 'districts') renderDistricts();
-  if (view === 'congress')  renderCongressView();
+  if(view==='dynasties') renderDynasties();
+  if(view==='districts') renderDistricts();
+  if(view==='congress')  renderCongressView();
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-window.addEventListener('load', init);
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeModal();});
+window.addEventListener('load',init);
 </script>
 </body>
 </html>
