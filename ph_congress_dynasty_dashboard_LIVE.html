@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🇵🇭 PH Congress Dynasty Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9922A;--gold-light:#F0C96A;--gold-dim:#8B6520;
+  --navy:#0A1628;--navy2:#112240;--navy3:#1A3357;
+  --surface:#0F1F38;--surface2:#162848;--surface3:#1E3254;
+  --text:#E8EDF5;--text2:#A8B8CC;--text3:#6A82A0;
+  --red:#E05252;--green:#3CB07A;--blue:#4A9EE0;--purple:#9B72CF;
+  --border:#1E3254;--radius:12px;
+  --dynasty-bg:#2A1A08;--dynasty-border:#8B6520;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--navy2)}
+::-webkit-scrollbar-thumb{background:var(--navy3);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--gold-dim)}
+.header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 50%,#0D1F3C 100%);border-bottom:1px solid var(--gold-dim);padding:0 32px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:64px;}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-flag{font-size:28px;line-height:1}
+.logo-text{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--gold-light);letter-spacing:.5px}
+.logo-sub{font-size:11px;color:var(--text3);font-weight:400;letter-spacing:.5px;text-transform:uppercase}
+.nav{display:flex;gap:4px;flex-wrap:wrap}
+.nav-btn{padding:8px 16px;border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
+.nav-btn:hover,.nav-btn.active{background:var(--surface3);color:var(--gold-light)}
+.main{padding:28px 32px;max-width:1600px;margin:0 auto}
+#loadingScreen{position:fixed;inset:0;background:var(--navy);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+.load-spinner{width:48px;height:48px;border:3px solid var(--surface3);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-text{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold-light)}
+.load-sub{font-size:13px;color:var(--text3)}
+#errorBanner{display:none;background:#2A0F0F;border:1px solid var(--red);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;color:#F08080;font-size:13px;line-height:1.6}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;position:relative;overflow:hidden;transition:border-color .2s,transform .15s;cursor:default;}
+.kpi-card:hover{border-color:var(--gold-dim);transform:translateY(-2px)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent-bar,var(--gold))}
+.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:500;margin-bottom:8px}
+.kpi-value{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--text);line-height:1}
+.kpi-sub{font-size:12px;color:var(--text3);margin-top:6px}
+.kpi-icon{position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:32px;opacity:.15}
+.kpi-trend{font-size:11px;margin-top:4px;font-weight:600}
+.kpi-trend.up{color:var(--red)}.kpi-trend.neutral{color:var(--text3)}
+.search-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;}
+.search-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.search-grid{display:grid;grid-template-columns:2fr 1.5fr 1.5fr 1fr;gap:12px;align-items:end}
+.field-group{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);font-weight:500}
+.search-input,.search-select{background:var(--navy2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 14px;width:100%;transition:border-color .2s;outline:none;}
+.search-input:focus,.search-select:focus{border-color:var(--gold-dim)}
+.search-input::placeholder{color:var(--text3)}
+.search-select option{background:var(--navy2)}
+.btn{padding:10px 20px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-ghost{background:transparent;color:var(--text3);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--text3);color:var(--text)}
+.search-actions{display:flex;gap:8px}
+.tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:20px;width:fit-content}
+.tab{padding:8px 20px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;border:none;background:transparent;color:var(--text3)}
+.tab.active{background:var(--surface3);color:var(--gold-light)}
+.results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.results-count{font-size:13px;color:var(--text3)}
+.results-count span{color:var(--gold-light);font-weight:600}
+.person-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.person-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.person-card:hover{border-color:var(--gold-dim);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.person-card.dynasty{border-color:var(--dynasty-border);background:var(--dynasty-bg)}
+.person-card.dynasty::after{content:'👑';position:absolute;top:14px;right:14px;font-size:16px;opacity:.7}
+.pc-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:2px;padding-right:28px}
+.pc-name2{font-size:12px;color:var(--text3);margin-bottom:10px;font-family:'DM Mono',monospace}
+.pc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500;letter-spacing:.3px}
+.tag-region{background:#1E2F48;color:#7BADD4}
+.tag-female{background:#1F1528;color:#C97EE0}
+.tag-speaker{background:#1A2E00;color:#7BD47B}
+.tag-dynasty{background:var(--dynasty-bg);color:var(--gold);border:1px solid var(--dynasty-border)}
+.pc-stats{display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.pc-stat{text-align:center}
+.pc-stat-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--text)}
+.pc-stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.district-table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--surface2);color:var(--text2);font-weight:600;padding:12px 14px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;z-index:2;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .15s;cursor:pointer}
+tbody tr:hover{background:var(--surface2)}
+tbody tr.region-row{background:var(--surface3)}
+tbody tr.region-row td{color:var(--gold-light);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;padding:10px 14px}
+tbody td{padding:10px 14px;color:var(--text2);white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+tbody td:first-child{color:var(--text);font-weight:500}
+.dynasty-cell{color:var(--gold)!important;font-weight:600!important}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--navy2);border:1px solid var(--border);border-radius:16px;max-width:760px;width:100%;max-height:88vh;overflow-y:auto;transform:translateY(20px);transition:transform .25s;}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-header{padding:28px 32px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--navy2);z-index:1;}
+.modal-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:4px}
+.modal-name2{font-size:13px;color:var(--text3);font-family:'DM Mono',monospace}
+.modal-close{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.modal-close:hover{background:var(--surface3);color:var(--text)}
+.modal-body{padding:24px 32px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.info-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px}
+.info-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:4px}
+.info-val{font-size:14px;color:var(--text);font-weight:500}
+.info-val.dynasty{color:var(--gold)}
+.section-head{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold-light);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:16px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start;}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:10px;height:10px;border-radius:50%;background:var(--gold);margin-top:4px;flex-shrink:0}
+.tl-period{font-family:'DM Mono',monospace;font-size:13px;color:var(--gold-light);min-width:140px;font-weight:500}
+.empty{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-text{font-size:15px}
+.pagination{display:flex;gap:8px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+.page-btn{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text3);font-size:13px;cursor:pointer;transition:all .2s;}
+.page-btn:hover,.page-btn.active{background:var(--surface3);color:var(--gold-light);border-color:var(--gold-dim)}
+.page-btn:disabled{opacity:.4;cursor:default}
+.section-divider{height:1px;background:var(--border);margin:24px 0}
+.fade-in{animation:fadeIn .3s ease-out forwards}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){.search-grid{grid-template-columns:1fr 1fr}.kpi-row{grid-template-columns:repeat(2,1fr)}.main{padding:16px}.header{padding:12px 16px;height:auto;flex-direction:column;gap:8px}.person-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div class="load-spinner"></div>
+  <div class="load-text">Loading Dynasty Data…</div>
+  <div class="load-sub">Connecting to Google Sheets</div>
+</div>
+
+<header class="header">
+  <div class="logo">
+    <span class="logo-flag">🇵🇭</span>
+    <div>
+      <div class="logo-text">PH Congress Dynasty Tracker</div>
+      <div class="logo-sub">8th – 20th Congress · Live Data</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showView('search')">🔍 Search</button>
+    <button class="nav-btn" onclick="showView('districts')">🗺️ Districts</button>
+    <button class="nav-btn" onclick="showView('dynasties')">👑 Dynasties</button>
+    <button class="nav-btn" onclick="showView('congress')">📜 Congress</button>
+  </nav>
+</header>
+
+<main class="main">
+  <div id="errorBanner"></div>
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <div id="view-search">
+    <div class="search-panel">
+      <div class="search-title">🔍 Search &amp; Filter Legislators</div>
+      <div class="search-grid">
+        <div class="field-group">
+          <label class="field-label">Search by Name</label>
+          <input class="search-input" id="nameInput" placeholder="e.g. Marcos, Aquino, Romualdez…" oninput="debounceSearch()">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Region / District</label>
+          <input class="search-input" id="districtInput" placeholder="e.g. Cebu, Batanes, 1st District…" oninput="debounceSearch()">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Filter by Congress</label>
+          <select class="search-select" id="congressSelect" onchange="doSearch()">
+            <option value="">All Congresses</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Filter</label>
+          <div class="search-actions">
+            <select class="search-select" id="filterSelect" onchange="doSearch()" style="flex:1">
+              <option value="">All</option>
+              <option value="dynasty">Dynasty Only</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="multiterm">3+ Terms</option>
+            </select>
+            <button class="btn btn-ghost" onclick="clearSearch()">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="setCardView('cards',this)">⊞ Cards</button>
+      <button class="tab" onclick="setCardView('table',this)">≡ Table</button>
+    </div>
+    <div class="results-header">
+      <div class="results-count" id="resultsCount">Loading…</div>
+    </div>
+    <div id="cardsView"></div>
+    <div id="tableView" style="display:none"></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <div id="view-districts" style="display:none">
+    <div class="search-panel">
+      <div class="search-title">🗺️ District Representative History</div>
+      <div class="search-grid" style="grid-template-columns:2fr 1.5fr 1fr">
+        <div class="field-group">
+          <label class="field-label">Search District or Province</label>
+          <input class="search-input" id="dSearchInput" placeholder="e.g. Manila, Batanes, Cebu…" oninput="renderDistricts()">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Filter by Region</label>
+          <select class="search-select" id="dRegionSelect" onchange="renderDistricts()">
+            <option value="">All Regions</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Congress</label>
+          <select class="search-select" id="dCongressSelect" onchange="renderDistricts()">
+            <option value="">All Congresses</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="district-table-wrap">
+      <table><thead id="districtThead"></thead><tbody id="districtTbody"></tbody></table>
+    </div>
+  </div>
+
+  <div id="view-dynasties" style="display:none">
+    <div class="search-panel">
+      <div class="search-title">👑 Political Dynasty Families</div>
+      <div class="search-grid" style="grid-template-columns:2fr 1fr auto">
+        <div class="field-group">
+          <label class="field-label">Search Clan / Family</label>
+          <input class="search-input" id="clanSearchInput" placeholder="e.g. Marcos, Aquino, Romualdez…" oninput="renderDynasties()">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Min Members</label>
+          <select class="search-select" id="clanMinSelect" onchange="renderDynasties()">
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="5">5+</option>
+            <option value="7">7+</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">&nbsp;</label>
+          <button class="btn btn-ghost" onclick="document.getElementById('clanSearchInput').value='';renderDynasties()">✕ Clear</button>
+        </div>
+      </div>
+    </div>
+    <div id="dynastyContent"></div>
+  </div>
+
+  <div id="view-congress" style="display:none">
+    <div class="search-panel">
+      <div class="search-title">📜 Browse by Congress Period</div>
+      <div class="search-grid" style="grid-template-columns:1.5fr 1fr 1fr">
+        <div class="field-group">
+          <label class="field-label">Select Congress</label>
+          <select class="search-select" id="cCongressSelect" onchange="renderCongressView()">
+            <option value="">Select a congress period…</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Filter by Region</label>
+          <select class="search-select" id="cRegionSelect" onchange="renderCongressView()">
+            <option value="">All Regions</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Sex</label>
+          <select class="search-select" id="cSexSelect" onchange="renderCongressView()">
+            <option value="">All</option>
+            <option value="F">Female</option>
+            <option value="M">Male</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="congressContent"></div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-name" id="modalName"></div>
+        <div class="modal-name2" id="modalName2"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const LEGISLATORS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_mvfBjl6NTQq78FAywFTwD4kndApHnnHu4QEH-FQ2m8pROHKSfofRp9hul4XJoA/pub?output=csv';
+const DISTRICTS_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRXoUfNbQwjfqqLtXWlgBTwFKnx1CC7qD9bDk-dts1ogdawYr8LSFe7YF6T8H9-Yg/pub?gid=1021641418&single=true&output=csv';
+
+const DB = { p: [], d: [] };
+let ALL_CONGRESSES = [];
+let ALL_REGIONS    = [];
+let searchResults  = [];
+let currentPage    = 1;
+let cardMode       = 'cards';
+let debounceTimer  = null;
+let currentView    = 'search';
+const PAGE_SIZE    = 24;
+
+function parseCSV(text) {
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
+  return lines.map(line => {
+    const cols = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { if (inQ && line[i+1]==='"'){cur+='"';i++;} else inQ=!inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur=''; }
+      else cur += ch;
+    }
+    cols.push(cur.trim()); return cols;
+  });
+}
+
+function findCol(headers, ...candidates) {
+  for (const c of candidates) {
+    const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g,'');
+    const idx = headers.findIndex(h => norm(h).includes(norm(c)));
+    if (idx !== -1) return idx;
+  }
+  return -1;
+}
+
+async function init() {
+  try {
+    const resp = await fetch(LEGISLATORS_URL);
+    if (!resp.ok) throw new Error('HTTP '+resp.status);
+    const text = await resp.text();
+    const rows = parseCSV(text);
+    if (rows.length < 2) throw new Error('Sheet is empty');
+    const raw = rows[0].map(h => h.toLowerCase().trim());
+    console.log('[Dynasty Tracker] Legislators headers:', raw);
+
+    const iName   = findCol(raw,'full_name','fullname','name','legislator','member','representative','rep_name');
+    const iSort   = findCol(raw,'sort_name','sortname','last_name','lastname','surname');
+    const iRegion = findCol(raw,'region','province','area','reg');
+    const iDist   = findCol(raw,'district','dist');
+    const iClan   = findCol(raw,'clan','family','dynasty_name','dynastyname','political_family','clan_name');
+    const iDyn    = findCol(raw,'is_dynasty','dynasty','isdynasty','political_dynasty','dynasty_member','is_political_dynasty');
+    const iSex    = findCol(raw,'sex','gender');
+    const iTerms  = findCol(raw,'total_terms','totalterms','terms','num_terms','number_of_terms','no_of_terms');
+    const iCong   = findCol(raw,'congresses_served','congresses','congress_served','terms_served','congress');
+    const iNick   = findCol(raw,'nickname','nick','aka','known_as','alias');
+    const iLeader = findCol(raw,'leadership','leader','position','house_position','role');
+    const iSpeaker= findCol(raw,'speaker','is_speaker','isspeaker');
+    const iBirth  = findCol(raw,'birthdate','birth','birthday','dob','date_of_birth');
+
+    console.log('[Dynasty Tracker] Column map → name:'+iName+' region:'+iRegion+' clan:'+iClan+' dynasty:'+iDyn+' sex:'+iSex+' terms:'+iTerms+' congresses:'+iCong);
+
+    if (iName === -1 && iSort === -1) throw new Error('Cannot find name column. Headers: '+raw.join(', '));
+
+    const get = (row, idx) => (idx !== -1 && idx < row.length) ? (row[idx]||'').trim() : '';
+
+    DB.p = rows.slice(1).filter(r => r.some(c=>c.trim())).map(r => {
+      const nameVal = get(r,iName)||get(r,iSort);
+      const sortVal = get(r,iSort)||get(r,iName);
+      const dynRaw  = get(r,iDyn).toUpperCase();
+      const isDyn   = dynRaw==='TRUE'||dynRaw==='YES'||dynRaw==='1'||dynRaw==='Y';
+      const congRaw = get(r,iCong);
+      const congList= congRaw ? congRaw.split(/[;,\n]+/).map(s=>s.trim()).filter(Boolean) : [];
+      const spkRaw  = get(r,iSpeaker).toUpperCase();
+      const isSpeaker = spkRaw==='TRUE'||spkRaw==='YES'||spkRaw==='1';
+      return {
+        fn:nameVal, n2:sortVal||nameVal, n:sortVal||nameVal,
+        rg:get(r,iRegion), di:get(r,iDist),
+        cl:get(r,iClan)||null, dy:isDyn,
+        sx:get(r,iSex).toUpperCase().charAt(0),
+        tt:parseInt(get(r,iTerms))||(congList.length||0),
+        tr:congList, sp:isSpeaker, ld:get(r,iLeader),
+        bd:get(r,iBirth), ak:get(r,iNick), cm:0, td:[], ty:[]
+      };
+    }).filter(p=>p.fn);
+
+    const cc={};
+    DB.p.forEach(p=>{ if(p.cl) cc[p.cl]=(cc[p.cl]||0)+1; });
+    DB.p.forEach(p=>{ p.cm=p.cl?(cc[p.cl]||0):0; });
+    console.log('[Dynasty Tracker] Loaded '+DB.p.length+' legislators, '+DB.p.filter(p=>p.dy).length+' dynasty members');
+  } catch(e) {
+    console.error('[Dynasty Tracker] Legislators error:', e);
+    showError('Could not load legislator data. Error: '+e.message+'<br>Make sure your sheet is published via File → Share → Publish to web → CSV.');
+  }
+
+  try {
+    const resp2 = await fetch(DISTRICTS_URL);
+    if (!resp2.ok) throw new Error('HTTP '+resp2.status);
+    const text2 = await resp2.text();
+    const rows2 = parseCSV(text2);
+    if (rows2.length >= 2) {
+      const dH = rows2[0].map(h=>h.trim());
+      console.log('[Dynasty Tracker] Districts headers:', dH);
+      const iRg = findCol(dH.map(h=>h.toLowerCase()),'region','province','area');
+      const iDi = findCol(dH.map(h=>h.toLowerCase()),'district','dist');
+      ALL_CONGRESSES = dH.filter((_,i)=>i!==iRg&&i!==iDi&&dH[i].trim());
+      DB.d = rows2.slice(1).filter(r=>r.some(c=>c.trim())).map(r=>{
+        const rg=iRg!==-1?(r[iRg]||'').trim():'';
+        const di=iDi!==-1?(r[iDi]||'').trim():'';
+        const h={};
+        dH.forEach((col,i)=>{ if(i!==iRg&&i!==iDi&&col.trim()) h[col.trim()]=(r[i]||'').trim(); });
+        return {rg,di,h};
+      }).filter(d=>d.rg||d.di);
+      console.log('[Dynasty Tracker] Loaded '+DB.d.length+' districts, '+ALL_CONGRESSES.length+' congress columns');
+    }
+  } catch(e) {
+    console.warn('[Dynasty Tracker] Districts warning:', e.message);
+  }
+
+  if (ALL_CONGRESSES.length===0) {
+    const allC=new Set();
+    DB.p.forEach(p=>(p.tr||[]).forEach(c=>allC.add(c)));
+    ALL_CONGRESSES=[...allC].sort((a,b)=>{ const na=parseInt(a),nb=parseInt(b); return isNaN(na)||isNaN(nb)?a.localeCompare(b):na-nb; });
+  }
+  ALL_REGIONS=[...new Set(DB.p.map(p=>p.rg).filter(Boolean))].sort();
+
+  document.getElementById('loadingScreen').style.display='none';
+  buildKPIs();
+  populateSelects();
+  renderDistrictHeader();
+  doSearch();
+}
+
+function showError(msg) {
+  const el=document.getElementById('errorBanner');
+  el.innerHTML='⚠️ '+msg; el.style.display='block';
+}
+
+function buildKPIs() {
+  const p=DB.p;
+  if (!p.length) {
+    document.getElementById('kpiRow').innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:20px">No data loaded. Check that your Google Sheet is published correctly.</div>';
+    return;
+  }
+  const total=p.length;
+  const dynM=p.filter(x=>x.dy).length;
+  const dynPct=total>0?(dynM/total*100).toFixed(1):0;
+  const fc={};
+  p.filter(x=>x.dy&&x.cl).forEach(x=>{fc[x.cl]=(fc[x.cl]||0)+1;});
+  const sorted=Object.entries(fc).sort((a,b)=>b[1]-a[1]);
+  const largest=sorted[0];
+  const numFam=[...new Set(p.filter(x=>x.dy&&x.cl).map(x=>x.cl))].length;
+  const majorFam=Object.values(fc).filter(c=>c>=3).length;
+  const femaleDyn=p.filter(x=>x.dy&&x.sx==='F').length;
+  const femPct=dynM>0?(femaleDyn/dynM*100).toFixed(0):0;
+  const speakers=p.filter(x=>x.dy&&x.sp).length;
+  const kpis=[
+    {label:'Dynasty Members',val:dynM,sub:'out of '+total+' total legislators',icon:'👑',accent:'var(--gold)',trend:dynPct+'% of all congress',cls:'up'},
+    {label:'% Dynasty-Held Seats',val:dynPct+'%',sub:'of all legislative seats',icon:'📊',accent:'var(--red)',trend:'Historically persistent',cls:'neutral'},
+    {label:'Dynasty Families',val:numFam,sub:'unique political clans',icon:'🏰',accent:'var(--purple)',trend:majorFam+' with 3+ members',cls:'neutral'},
+    {label:'Largest Dynasty',val:largest?largest[1]:'—',sub:largest?largest[0]+' family':'No data',icon:'⚜️',accent:'var(--gold-light)',trend:'Members in congress',cls:'up'},
+    {label:'Women in Dynasties',val:femaleDyn,sub:femPct+'% of dynasty members',icon:'♀',accent:'#C97EE0',trend:speakers+' Speaker(s) from dynasties',cls:'neutral'},
+  ];
+  document.getElementById('kpiRow').innerHTML=kpis.map(k=>`
+    <div class="kpi-card" style="--accent-bar:${k.accent}">
+      <div class="kpi-icon">${k.icon}</div>
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      <div class="kpi-trend ${k.cls}">${k.trend}</div>
+    </div>`).join('');
+}
+
+function populateSelects() {
+  ['congressSelect','dCongressSelect','cCongressSelect'].forEach(id=>{
+    const sel=document.getElementById(id); if(!sel) return;
+    const def=sel.options[0].outerHTML;
+    sel.innerHTML=def+ALL_CONGRESSES.map(c=>`<option value="${c}">${c}</option>`).join('');
+  });
+  ['dRegionSelect','cRegionSelect'].forEach(id=>{
+    const sel=document.getElementById(id); if(!sel) return;
+    const def=sel.options[0].outerHTML;
+    sel.innerHTML=def+ALL_REGIONS.map(r=>`<option value="${r}">${r}</option>`).join('');
+  });
+}
+
+function debounceSearch(){ clearTimeout(debounceTimer); debounceTimer=setTimeout(doSearch,250); }
+
+function doSearch() {
+  const q=(document.getElementById('nameInput').value||'').toLowerCase().trim();
+  const dq=(document.getElementById('districtInput').value||'').toLowerCase().trim();
+  const cong=document.getElementById('congressSelect').value;
+  const filt=document.getElementById('filterSelect').value;
+  searchResults=DB.p.filter(p=>{
+    if(q){ const hay=[p.fn,p.n2,p.n,p.ak,p.cl].map(s=>(s||'').toLowerCase()).join(' '); if(!hay.includes(q)) return false; }
+    if(dq){ const dd=[(p.di||''),(p.rg||'')].map(s=>s.toLowerCase()).join(' '); if(!dd.includes(dq)) return false; }
+    if(cong&&!(p.tr||[]).includes(cong)) return false;
+    if(filt==='dynasty'&&!p.dy) return false;
+    if(filt==='female'&&p.sx!=='F') return false;
+    if(filt==='male'&&p.sx!=='M') return false;
+    if(filt==='multiterm'&&(p.tt||0)<3) return false;
+    return true;
+  });
+  currentPage=1; renderResults();
+}
+
+function clearSearch() {
+  ['nameInput','districtInput'].forEach(id=>document.getElementById(id).value='');
+  ['congressSelect','filterSelect'].forEach(id=>document.getElementById(id).value='');
+  doSearch();
+}
+
+function renderResults() {
+  const total=searchResults.length;
+  const shown=Math.min(PAGE_SIZE*currentPage,total);
+  document.getElementById('resultsCount').innerHTML=`Showing <span>${shown.toLocaleString()}</span> of <span>${total.toLocaleString()}</span> legislators`;
+  const start=(currentPage-1)*PAGE_SIZE;
+  const page=searchResults.slice(start,start+PAGE_SIZE);
+  if(cardMode==='cards') renderCards(page); else renderTable(page);
+  renderPagination(total);
+}
+
+function renderCards(items) {
+  document.getElementById('cardsView').style.display='';
+  document.getElementById('tableView').style.display='none';
+  if(!items.length){ document.getElementById('cardsView').innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No legislators match your search.</div></div>'; return; }
+  document.getElementById('cardsView').innerHTML='<div class="person-grid fade-in">'+items.map(p=>personCard(p)).join('')+'</div>';
+}
+
+function personCard(p) {
+  const tags=[];
+  if(p.rg) tags.push('<span class="tag tag-region">'+p.rg+'</span>');
+  if(p.dy) tags.push('<span class="tag tag-dynasty">👑 Dynasty</span>');
+  if(p.sx==='F') tags.push('<span class="tag tag-female">♀ Female</span>');
+  if(p.sp) tags.push('<span class="tag tag-speaker">🏛 Speaker</span>');
+  const first=p.tr&&p.tr.length?p.tr[0]:'—';
+  const last=p.tr&&p.tr.length?p.tr[p.tr.length-1]:'—';
+  const eid=encodeURIComponent(p.n2||p.fn);
+  return '<div class="person-card '+(p.dy?'dynasty':'')+'" onclick="openModal(\''+eid+'\')">'+
+    '<div class="pc-name">'+(p.fn||p.n2||'Unknown')+'</div>'+
+    '<div class="pc-name2">'+(p.n2||'')+'</div>'+
+    '<div class="pc-tags">'+tags.join('')+'</div>'+
+    (p.cl?'<div style="font-size:12px;color:var(--gold-dim);margin-bottom:8px">🏰 '+p.cl+'</div>':'')+
+    '<div class="pc-stats">'+
+      '<div class="pc-stat"><div class="pc-stat-val">'+(p.tt||0)+'</div><div class="pc-stat-lbl">Terms</div></div>'+
+      '<div class="pc-stat" style="text-align:left;flex:1;padding-left:16px">'+
+        '<div style="font-size:11px;color:var(--text3)">First: '+first+'</div>'+
+        '<div style="font-size:11px;color:var(--text3)">Last: '+last+'</div>'+
+      '</div></div></div>';
+}
+
+function renderTable(items) {
+  document.getElementById('cardsView').style.display='none';
+  document.getElementById('tableView').style.display='';
+  if(!items.length){ document.getElementById('tableView').innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No results found.</div></div>'; return; }
+  const rows=items.map(p=>'<tr onclick="openModal(\''+encodeURIComponent(p.n2||p.fn)+'\')"><td>'+(p.fn||p.n2)+'</td><td style="font-family:\'DM Mono\',monospace;font-size:12px">'+(p.n2||'—')+'</td><td>'+(p.rg||'—')+'</td><td>'+(p.di||'—')+'</td><td class="'+(p.dy?'dynasty-cell':'')+'">'+(p.cl||'—')+'</td><td style="text-align:center">'+(p.tt||0)+'</td><td>'+(p.sx==='F'?'Female':p.sx==='M'?'Male':'—')+'</td><td>'+(p.tr&&p.tr.length?p.tr[p.tr.length-1]:'—')+'</td></tr>').join('');
+  document.getElementById('tableView').innerHTML='<div class="district-table-wrap"><table><thead><tr><th>Full Name</th><th>Sort Name</th><th>Region</th><th>District</th><th>Clan / Dynasty</th><th>Terms</th><th>Sex</th><th>Last Congress</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function renderPagination(total) {
+  const pages=Math.ceil(total/PAGE_SIZE);
+  if(pages<=1){ document.getElementById('pagination').innerHTML=''; return; }
+  let btns='<button class="page-btn" onclick="goPage('+(currentPage-1)+')" '+(currentPage===1?'disabled':'')+'>‹</button>';
+  pageRange(currentPage,pages).forEach(p=>{ if(p==='…') btns+='<span style="padding:6px 4px;color:var(--text3)">…</span>'; else btns+='<button class="page-btn '+(p===currentPage?'active':'')+'" onclick="goPage('+p+')">'+p+'</button>'; });
+  btns+='<button class="page-btn" onclick="goPage('+(currentPage+1)+')" '+(currentPage===pages?'disabled':'')+'>›</button>';
+  document.getElementById('pagination').innerHTML=btns;
+}
+
+function pageRange(cur,total) {
+  if(total<=7) return Array.from({length:total},(_,i)=>i+1);
+  if(cur<=4) return [1,2,3,4,5,'…',total];
+  if(cur>=total-3) return [1,'…',total-4,total-3,total-2,total-1,total];
+  return [1,'…',cur-1,cur,cur+1,'…',total];
+}
+
+function goPage(p) {
+  const pages=Math.ceil(searchResults.length/PAGE_SIZE);
+  if(p<1||p>pages) return;
+  currentPage=p; renderResults();
+  window.scrollTo({top:180,behavior:'smooth'});
+}
+
+function setCardView(mode,btn) {
+  cardMode=mode;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active'); renderResults();
+}
+
+function openModal(encodedName) {
+  const name=decodeURIComponent(encodedName);
+  const p=DB.p.find(x=>x.n2===name||x.fn===name||x.n===name);
+  if(!p) return;
+  document.getElementById('modalName').textContent=p.fn||p.n2||p.n;
+  document.getElementById('modalName2').textContent=(p.n2||'')+(p.ak?' · AKA: '+p.ak:'');
+  const info=[
+    {lbl:'Sex',val:p.sx==='F'?'Female':p.sx==='M'?'Male':'Unknown'},
+    {lbl:'Birthdate',val:p.bd||'—'},
+    {lbl:'Region / Province',val:p.rg||'—'},
+    {lbl:'District',val:p.di||'—'},
+    {lbl:'Dynasty / Clan',val:p.cl||'None',cls:p.dy?'dynasty':''},
+    {lbl:'Clan Members',val:p.cm>=2?p.cm+' members in Congress':'—'},
+    {lbl:'Total Terms',val:p.tt||0},
+    {lbl:'House Leadership',val:p.ld||'—'},
+  ];
+  const infoHtml='<div class="info-grid">'+info.map(i=>'<div class="info-item"><div class="info-lbl">'+i.lbl+'</div><div class="info-val '+(i.cls||'')+'">'+i.val+'</div></div>').join('')+'</div>';
+  let tlHtml='';
+  if(p.tr&&p.tr.length){ tlHtml='<div class="section-head">📅 Congress Timeline</div><div class="timeline">'+p.tr.map(period=>'<div class="tl-item"><div class="tl-dot"></div><div><div class="tl-period">'+period+'</div></div></div>').join('')+'</div>'; }
+  let clanHtml='';
+  if(p.cl&&p.dy){
+    const mates=DB.p.filter(x=>x.cl===p.cl&&x.n2!==p.n2).slice(0,10);
+    if(mates.length){ clanHtml='<div class="section-divider"></div><div class="section-head">👑 Dynasty Members — '+p.cl+'</div><div style="display:flex;flex-direction:column;gap:8px">'+mates.map(m=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--dynasty-bg);border:1px solid var(--dynasty-border);border-radius:8px;cursor:pointer" onclick="openModal(\''+encodeURIComponent(m.n2||m.fn)+'\')"><div><div style="font-size:14px;color:var(--text)">'+(m.fn||m.n2)+'</div><div style="font-size:12px;color:var(--text3)">'+(m.rg||'')+' · '+m.tt+' terms</div></div><span style="font-size:18px">›</span></div>').join('')+'</div>'; }
+  }
+  document.getElementById('modalBody').innerHTML=infoHtml+tlHtml+clanHtml;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(e) {
+  if(e&&e.target!==document.getElementById('modalOverlay')) return;
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function renderDistrictHeader() {
+  document.getElementById('districtThead').innerHTML='<tr><th style="min-width:150px">Region</th><th style="min-width:180px">District</th>'+ALL_CONGRESSES.map(c=>'<th style="min-width:110px">'+c+'</th>').join('')+'</tr>';
+}
+
+function renderDistricts() {
+  const q=(document.getElementById('dSearchInput').value||'').toLowerCase();
+  const reg=document.getElementById('dRegionSelect').value;
+  const cong=document.getElementById('dCongressSelect').value;
+  const dynastyClans=new Set(DB.p.filter(p=>p.dy&&p.cl).map(p=>p.cl.split(/\s+/)[0].toLowerCase()));
+  let filtered=DB.d.filter(d=>{
+    if(reg&&d.rg!==reg) return false;
+    if(q&&!(d.rg||'').toLowerCase().includes(q)&&!(d.di||'').toLowerCase().includes(q)) return false;
+    if(cong&&!d.h[cong]) return false;
+    return true;
+  });
+  let curReg='',rows='';
+  filtered.forEach(d=>{
+    if(d.rg!==curReg){ curReg=d.rg; rows+='<tr class="region-row"><td colspan="'+(2+ALL_CONGRESSES.length)+'">'+d.rg+'</td></tr>'; }
+    const cells=ALL_CONGRESSES.map(c=>{ const rep=d.h[c]||''; const isDyn=rep&&[...dynastyClans].some(cl=>rep.toLowerCase().includes(cl)); return '<td title="'+rep+'" '+(isDyn?'style="color:var(--gold);font-weight:600"':'')+'>'+(rep||'—')+'</td>'; }).join('');
+    rows+='<tr><td>'+d.rg+'</td><td style="font-weight:500">'+d.di+'</td>'+cells+'</tr>';
+  });
+  document.getElementById('districtTbody').innerHTML=rows||'<tr><td colspan="'+(2+ALL_CONGRESSES.length)+'" style="text-align:center;padding:40px;color:var(--text3)">No districts match your filter.</td></tr>';
+}
+
+function renderDynasties() {
+  const q=(document.getElementById('clanSearchInput').value||'').toLowerCase();
+  const min=parseInt(document.getElementById('clanMinSelect').value)||2;
+  const clanMap={};
+  DB.p.forEach(p=>{ if(!p.cl||!p.dy) return; if(!clanMap[p.cl]) clanMap[p.cl]={name:p.cl,members:[],count:0}; clanMap[p.cl].members.push(p); clanMap[p.cl].count++; });
+  let clans=Object.values(clanMap).filter(c=>c.count>=min);
+  if(q) clans=clans.filter(c=>c.name.toLowerCase().includes(q));
+  clans.sort((a,b)=>b.count-a.count);
+  if(!clans.length){ document.getElementById('dynastyContent').innerHTML='<div class="empty"><div class="empty-icon">👑</div><div class="empty-text">No dynasties found.</div></div>'; return; }
+  document.getElementById('dynastyContent').innerHTML=clans.map(c=>{
+    const members=c.members.slice(0,8).map(m=>'<div onclick="openModal(\''+encodeURIComponent(m.n2||m.fn)+'\')" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--navy2);border-radius:6px;cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'var(--surface3)\'" onmouseout="this.style.background=\'var(--navy2)\'"><div><div style="font-size:13px;font-weight:500;color:var(--text)">'+(m.fn||m.n2)+'</div><div style="font-size:11px;color:var(--text3)">'+(m.rg||'')+' · '+m.tt+' term'+(m.tt!==1?'s':'')+'</div></div><span style="color:var(--text3)">›</span></div>').join('');
+    const extra=c.count>8?'<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px">+'+(c.count-8)+' more members</div>':'';
+    return '<div style="background:var(--dynasty-bg);border:1px solid var(--dynasty-border);border-radius:12px;padding:20px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div style="font-family:\'Playfair Display\',serif;font-size:18px;color:var(--gold-light)">'+c.name+'</div><div style="font-size:12px;color:var(--text3);margin-top:2px">'+c.count+' members in Congress</div></div><div style="font-family:\'DM Mono\',monospace;font-size:36px;color:var(--gold);opacity:.6">'+c.count+'</div></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">'+members+extra+'</div></div>';
+  }).join('');
+}
+
+function renderCongressView() {
+  const cong=document.getElementById('cCongressSelect').value;
+  const reg=document.getElementById('cRegionSelect').value;
+  const sex=document.getElementById('cSexSelect').value;
+  if(!cong){ document.getElementById('congressContent').innerHTML='<div class="empty"><div class="empty-icon">📜</div><div class="empty-text">Select a Congress period above.</div></div>'; return; }
+  let members=DB.p.filter(p=>{ if(!(p.tr||[]).includes(cong)) return false; if(reg&&p.rg!==reg) return false; if(sex&&p.sx!==sex) return false; return true; });
+  const dynC=members.filter(p=>p.dy).length;
+  const femC=members.filter(p=>p.sx==='F').length;
+  const dynF=[...new Set(members.filter(p=>p.dy&&p.cl).map(p=>p.cl))].length;
+  const uReg=[...new Set(members.map(p=>p.rg).filter(Boolean))].length;
+  const pct=n=>members.length>0?(n/members.length*100).toFixed(1)+'%':'0%';
+  document.getElementById('congressContent').innerHTML=
+    '<div class="kpi-row" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px">'+
+    '<div class="kpi-card" style="--accent-bar:var(--blue)"><div class="kpi-label">Members</div><div class="kpi-value">'+members.length+'</div><div class="kpi-sub">in '+cong+'</div></div>'+
+    '<div class="kpi-card" style="--accent-bar:var(--gold)"><div class="kpi-label">Dynasty Members</div><div class="kpi-value">'+dynC+'</div><div class="kpi-sub">'+pct(dynC)+' of congress</div></div>'+
+    '<div class="kpi-card" style="--accent-bar:var(--purple)"><div class="kpi-label">Dynasty Families</div><div class="kpi-value">'+dynF+'</div><div class="kpi-sub">unique clans</div></div>'+
+    '<div class="kpi-card" style="--accent-bar:#C97EE0"><div class="kpi-label">Female Legislators</div><div class="kpi-value">'+femC+'</div><div class="kpi-sub">'+pct(femC)+' of congress</div></div>'+
+    '<div class="kpi-card" style="--accent-bar:var(--green)"><div class="kpi-label">Unique Regions</div><div class="kpi-value">'+uReg+'</div><div class="kpi-sub">regions represented</div></div>'+
+    '</div><div class="person-grid fade-in">'+members.map(p=>personCard(p)).join('')+'</div>';
+}
+
+function showView(view) {
+  currentView=view;
+  ['search','districts','dynasties','congress'].forEach(v=>{ document.getElementById('view-'+v).style.display=v===view?'':'none'; });
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>{ b.classList.toggle('active',['search','districts','dynasties','congress'][i]===view); });
+  if(view==='dynasties') renderDynasties();
+  if(view==='districts'){ renderDistrictHeader(); renderDistricts(); }
+  if(view==='congress') renderCongressView();
+}
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+window.addEventListener('load',init);
+</script>
+</body>
+</html>
