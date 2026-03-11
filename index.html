@@ -347,9 +347,6 @@ tbody td:first-child{color:var(--text);font-weight:500}
 </div>
 
 <script>
-// ============================================================
-//  LIVE GOOGLE SHEETS URLS
-// ============================================================
 const LEGISLATORS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR_mvfBjl6NTQq78FAywFTwD4kndApHnnHu4QEH-FQ2m8pROHKSfofRp9hul4XJoA/pub?gid=703765891&single=true&output=csv";
 const DISTRICTS_CSV_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXoUfNbQwjfqqLtXWlgBTwFKnx1CC7qD9bDk-dts1ogdawYr8LSFe7YF6T8H9-Yg/pub?gid=1021641418&single=true&output=csv";
 
@@ -358,156 +355,144 @@ const CORS_PROXIES = [
   u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
 ];
 
-const DB = { p: [], d: [] };
-const ALL_CONGRESSES = [
-  '8th Congress','9th Congress','10th Congress','11th Congress',
-  '12th Congress','13th Congress','14th Congress','15th Congress',
-  '16th Congress','17th Congress','18th Congress','19th Congress','20th Congress'
-];
-const MODERN_SET = new Set(ALL_CONGRESSES);
-let ALL_REGIONS = [];
-const PAGE_SIZE  = 24;
-let searchResults = [], currentPage = 1, cardMode = 'cards';
-let debounceTimer = null, currentView = 'search';
+// ─── DISTRICT CANONICAL MAP ────────────────────────────────────────────────
+// Old/variant district name → canonical modern name it should be merged into.
+// null = splits into multiple successors (handled by DISTRICT_SPLITS below).
+const DISTRICT_CANON = {
+  // Typo fixes
+  'Caloocan city, 3rd District':              'Caloocan City, 3rd District',
+  'Bataan, 3rd Distirict':                    'Bataan, 3rd District',
+  // Renames / one-to-one absorptions: old history flows into canonical
+  'Taguig City-Pateros, Lone District':       'Taguig City, Lone District',
+  'Makati City, Lone District':               'Makati City, 1st District',
+  'Parañaque City, Lone District':            'Parañaque City, 1st District',
+  'Marikina City, Lone District':             'Marikina City, 1st District',
+  'Zamboanga City, Lone District':            'Zamboanga City, 1st District',
+  'Cagayan de Oro City, Lone District':       'Cagayan de Oro City, 1st District',
+  'Antipolo City, Lone District':             'Antipolo City, 1st District',
+  'Valenzuela City, Lone District':           'Valenzuela City, 1st District',
+  'Sultan Kudarat, Lone District':            'Sultan Kudarat, 1st District',
+  'Zamboanga Sibugay, Lone District':         'Zamboanga Sibugay, 1st District',
+  'Agusan del Sur, Lone District':            'Agusan del Sur, 1st District',
+  'Camarines Norte, Lone District':           'Camarines Norte, 1st District',
+  'Aklan, Lone District':                     'Aklan, 1st District',
+  'Southern Leyte, Lone District':            'Southern Leyte, 1st District',
+  'Benguet, Lone District':                   'Benguet, 1st District',
+  'Davao del Sur, Lone District':             'Davao del Sur, 1st District',
+  'Malabon-Navotas, Lone District':           'Malabon City, Lone District',
+  'Zamboanga del Sur, 3rd District':          'Zamboanga del Sur, 2nd District',
+  // True splits: null means handled by DISTRICT_SPLITS
+  'San Juan-Mandaluyong, Lone District':      null,
+  'Las Piñas-Muntinlupa City, Lone District': null,
+  'Kalinga-Apayao, Lone District':            null,
+};
 
-// ============================================================
-//  FUZZY MATCHING ENGINE
-//  Handles: case differences, missing middle names, nickname
-//  variations, suffix differences (Jr./Sr./II/III), extra
-//  spaces, punctuation, reordered name parts.
-// ============================================================
+// Old combined district → BOTH successors get the history
+const DISTRICT_SPLITS = {
+  'San Juan-Mandaluyong, Lone District':      ['San Juan City, Lone District', 'Mandaluyong City, Lone District'],
+  'Las Piñas-Muntinlupa City, Lone District': ['Las Piñas City, Lone District', 'Muntinlupa City, Lone District'],
+  'Kalinga-Apayao, Lone District':            ['Kalinga, Lone District', 'Apayao, Lone District'],
+};
 
-// Normalize a name to a clean comparable form
-function normName(s) {
-  if (!s) return '';
-  return s
-    .toLowerCase()
-    .replace(/["""'']/g, '')           // remove quotes (nicknames)
-    .replace(/\b(jr|sr|ii|iii|iv|v|md|phd|esq)\.?\b/g, '') // remove suffixes
-    .replace(/[^a-z0-9\s]/g, ' ')     // punctuation → space
-    .replace(/\s+/g, ' ')
-    .trim();
+function mergeDistricts(rawRows) {
+  // rawRows: [{r, d, h:{congress: name}}]
+  const merged = {}; // canonical_name → {r, d, h}
+
+  function ensure(r, d) {
+    if (!merged[d]) merged[d] = { r, d, h: {} };
+  }
+  function absorb(target, sourceH) {
+    for (const [c, v] of Object.entries(sourceH)) {
+      if (v && !merged[target].h[c]) merged[target].h[c] = v;
+    }
+  }
+
+  for (const row of rawRows) {
+    const dn = row.d;
+    if (dn in DISTRICT_SPLITS) {
+      // Distribute to both successors
+      const succs = DISTRICT_SPLITS[dn];
+      for (const s of succs) {
+        ensure(row.r, s);
+        absorb(s, row.h);
+      }
+    } else {
+      const canon = (dn in DISTRICT_CANON) ? DISTRICT_CANON[dn] : dn;
+      if (!canon) continue; // null = handled as split above
+      ensure(row.r, canon);
+      absorb(canon, row.h);
+    }
+  }
+
+  return Object.values(merged).sort((a, b) =>
+    a.r < b.r ? -1 : a.r > b.r ? 1 : a.d < b.d ? -1 : 1
+  );
 }
 
-// Extract just the surname (before first comma, or first token)
-function surname(s) {
+// ─── FUZZY NAME MATCHING ──────────────────────────────────────────────────
+function normName(s) {
+  if (!s) return '';
+  return s.toLowerCase()
+    .replace(/["""'']/g, '')
+    .replace(/\b(jr|sr|ii|iii|iv|v|md|phd)\.?\b/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+}
+function surName(s) {
   const n = normName(s);
   return n.includes(',') ? n.split(',')[0].trim() : n.split(' ')[0];
 }
-
-// Extract first name token (after comma, or second token)
 function firstName(s) {
   const n = normName(s);
-  if (n.includes(',')) {
-    const after = n.split(',').slice(1).join(',').trim();
-    return after.split(' ')[0];
-  }
+  if (n.includes(',')) return (n.split(',').slice(1).join(',').trim()).split(' ')[0];
   return n.split(' ')[1] || '';
 }
-
-// Levenshtein distance (edit distance)
-function levenshtein(a, b) {
+function lev(a, b) {
   if (a === b) return 0;
   if (!a.length) return b.length;
   if (!b.length) return a.length;
-  const dp = Array.from({length: a.length + 1}, (_, i) =>
-    Array.from({length: b.length + 1}, (_, j) => i === 0 ? j : j === 0 ? i : 0)
-  );
-  for (let i = 1; i <= a.length; i++)
-    for (let j = 1; j <= b.length; j++)
-      dp[i][j] = a[i-1] === b[j-1]
-        ? dp[i-1][j-1]
-        : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  const dp = Array.from({length:a.length+1}, (_,i) =>
+    Array.from({length:b.length+1}, (_,j) => i===0?j:j===0?i:0));
+  for (let i=1;i<=a.length;i++)
+    for (let j=1;j<=b.length;j++)
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
   return dp[a.length][b.length];
 }
-
-// Core fuzzy score: 0.0 (no match) → 1.0 (perfect match)
 function fuzzyScore(a, b) {
   if (!a || !b) return 0;
   const na = normName(a), nb = normName(b);
   if (na === nb) return 1.0;
-
-  // Surname must match closely — if surnames are too different, score 0
-  const sa = surname(a), sb = surname(b);
-  const surnameLen = Math.max(sa.length, sb.length);
-  const surnameDist = levenshtein(sa, sb);
-  if (surnameLen > 3 && surnameDist > 2) return 0; // surnames too different
-
-  // First name similarity
+  const sa = surName(a), sb = surName(b);
+  const sdist = lev(sa, sb);
+  if (Math.max(sa.length, sb.length) > 3 && sdist > 2) return 0;
   const fa = firstName(a), fb = firstName(b);
-  const fnLen = Math.max(fa.length, fb.length) || 1;
-  const fnDist = levenshtein(fa, fb);
-  const fnSim = 1 - fnDist / fnLen;
-
-  // Overall string similarity
-  const maxLen = Math.max(na.length, nb.length);
-  const dist = levenshtein(na, nb);
-  const strSim = 1 - dist / maxLen;
-
-  // Weighted: surname match + first name + overall
-  const surnameSim = 1 - surnameDist / (surnameLen || 1);
-  return surnameSim * 0.5 + fnSim * 0.3 + strSim * 0.2;
+  const fnSim = 1 - lev(fa,fb) / (Math.max(fa.length,fb.length)||1);
+  const sSim  = 1 - sdist / (Math.max(sa.length,sb.length)||1);
+  const full  = 1 - lev(na,nb) / (Math.max(na.length,nb.length)||1);
+  return sSim*0.5 + fnSim*0.3 + full*0.2;
 }
-
-// MATCH THRESHOLD — tune this value:
-// 0.85+ = very strict (only near-exact matches)
-// 0.75  = balanced (catches typos, missing middle names)
-// 0.65  = loose (catches more but may false-positive)
 const FUZZY_THRESHOLD = 0.75;
 
-// Find the best matching person in DB.p for a given name string
-// Returns the matched person object or null
-function findPerson(name) {
-  if (!name || !name.trim()) return null;
-  const clean = name.trim();
-
-  // 1. Try exact match first (fastest)
-  let hit = DB.p.find(p =>
-    p.fn === clean || p.n2 === clean || p.n === clean
-  );
-  if (hit) return hit;
-
-  // 2. Case-insensitive exact
-  const lc = clean.toLowerCase();
-  hit = DB.p.find(p =>
-    (p.fn||'').toLowerCase() === lc ||
-    (p.n2||'').toLowerCase() === lc
-  );
-  if (hit) return hit;
-
-  // 3. Fuzzy match — only compare against persons with same surname
-  const targetSurname = surname(clean);
-  if (!targetSurname) return null;
-
-  let best = null, bestScore = FUZZY_THRESHOLD;
-  for (const p of DB.p) {
-    // Pre-filter by surname similarity to keep it fast
-    if (Math.abs(surname(p.fn).length - targetSurname.length) > 3) continue;
-    if (!surname(p.fn).startsWith(targetSurname[0])) continue;
-
-    const score = Math.max(
-      fuzzyScore(clean, p.fn),
-      fuzzyScore(clean, p.n2),
-      fuzzyScore(clean, p.n)
-    );
-    if (score > bestScore) { bestScore = score; best = p; }
-  }
-  return best;
-}
-
-// Handle semicolon-separated multi-rep cells (mid-term replacements)
-// Returns array of name strings
 function splitRepNames(val) {
   if (!val) return [];
   return val.split(/[;\n]/).map(s => s.trim()).filter(Boolean);
 }
 
-// ============================================================
-//  FETCH + CSV PARSING
-// ============================================================
+// ─── DATA STORE ──────────────────────────────────────────────────────────
+const DB = { p: [], d: [] };
+const ALL_CONGRESSES = ['8th Congress','9th Congress','10th Congress','11th Congress',
+  '12th Congress','13th Congress','14th Congress','15th Congress','16th Congress',
+  '17th Congress','18th Congress','19th Congress','20th Congress'];
+const MODERN_SET = new Set(ALL_CONGRESSES);
+let ALL_REGIONS = [];
+const PAGE_SIZE = 24;
+let searchResults = [], currentPage = 1, cardMode = 'cards';
+let debounceTimer = null, currentView = 'search';
+
+// ─── FETCH ────────────────────────────────────────────────────────────────
 async function fetchCSV(url) {
   try {
-    const r = await fetch(url, { mode: 'cors' });
+    const r = await fetch(url, {mode:'cors'});
     if (r.ok) { const t = await r.text(); if (t.trim().length > 50) return t; }
   } catch(e) {}
   for (const pFn of CORS_PROXIES) {
@@ -521,16 +506,13 @@ async function fetchCSV(url) {
 
 function parseCSV(text) {
   const rows = [];
-  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
-  for (const line of lines) {
+  for (const line of text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n')) {
     if (!line.trim()) continue;
     const cols = []; let cur = '', inQ = false;
     for (let i = 0; i < line.length; i++) {
       const c = line[i];
-      if (c === '"') {
-        if (inQ && line[i+1] === '"') { cur += '"'; i++; }
-        else inQ = !inQ;
-      } else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      if (c==='"') { if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ; }
+      else if (c===','&&!inQ) { cols.push(cur.trim()); cur=''; }
       else cur += c;
     }
     cols.push(cur.trim());
@@ -544,54 +526,154 @@ function normCongress(raw) {
   const m = raw.trim().match(/^(\d+)(?:st|nd|rd|th)?\s+congress$/i);
   if (!m) return raw.trim();
   const n = parseInt(m[1]);
-  const sfx = n===11||n===12||n===13 ? 'th' : ['','st','nd','rd'][n%10]||'th';
+  const sfx = [11,12,13].includes(n) ? 'th' : ['','st','nd','rd'][n%10]||'th';
   return `${n}${sfx} Congress`;
 }
 
-// ============================================================
-//  INIT
-// ============================================================
+// ─── LOAD LEGISLATORS ────────────────────────────────────────────────────
+async function loadLegislators() {
+  try {
+    const rows = parseCSV(await fetchCSV(LEGISLATORS_CSV_URL));
+    let hi = rows.findIndex(r => r.some(c => c.trim().toUpperCase() === 'FULLNAME'));
+    if (hi < 0) hi = 3;
+    const hdr = rows[hi].map(h =>
+      h.trim().toUpperCase().replace(/[^A-Z0-9]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')
+    );
+    const col = k => hdr.indexOf(k);
+    const [iNAME,iNAME2,iREG,iDIST,iPER,iAKA,iFN,iSEX,iBD,iCLAN,iSPK,iLEAD] =
+      ['NAME','NAME2','REGION_PROVINCE','DISTRICT','PERIOD','AKA','FULLNAME',
+       'SEX','BIRTHDATE','CLAN','HOUSE_SPEAKER_START','HOUSE_LEADERSHIP'].map(col);
+
+    const map = new Map();
+    for (const r of rows.slice(hi+1)) {
+      const fn = (r[iFN]||'').trim(); if (!fn) continue;
+      if (!map.has(fn)) map.set(fn,{fn,n2:'',n:'',ak:'',rg:'',di:'',sx:'',bd:'',cl:null,sp:false,ld:'',tr:[],tt:0,cm:0});
+      const p = map.get(fn);
+      const rn=(r[iNAME]||'').trim(), r2=(r[iNAME2]||'').trim();
+      if (rn&&!rn.startsWith('=')&&!p.n2) p.n2=rn;
+      if (r2&&!r2.startsWith('=')&&!p.n)  p.n=r2;
+      if (!p.rg&&r[iREG])  p.rg=r[iREG].trim();
+      if (!p.di&&r[iDIST]) p.di=r[iDIST].trim();
+      if (!p.sx&&r[iSEX])  p.sx=r[iSEX].trim();
+      if (!p.bd&&r[iBD])   p.bd=r[iBD].trim();
+      if (!p.cl&&iCLAN>=0&&r[iCLAN]) p.cl=r[iCLAN].trim();
+      if (!p.ld&&iLEAD>=0&&r[iLEAD]) p.ld=r[iLEAD].trim();
+      if (!p.ak&&iAKA>=0&&r[iAKA])   p.ak=r[iAKA].trim();
+      if (!p.sp&&iSPK>=0&&r[iSPK])   p.sp=true;
+      const period=(r[iPER]||'').trim();
+      if (period){p.tt++;const nc=normCongress(period);if(MODERN_SET.has(nc))p.tr.push(nc);}
+    }
+    DB.p = [...map.values()].map(p=>({
+      ...p, dy:Boolean(p.cl),
+      n2:p.n2||p.fn, n:p.n||p.n2||p.fn,
+      sx:(p.sx||'').toLowerCase().startsWith('f')?'F':'M'
+    }));
+    console.log(`✅ Legislators: ${DB.p.length}, dynasty: ${DB.p.filter(x=>x.dy).length}`);
+  } catch(e) {
+    console.error('loadLegislators failed:', e);
+  }
+}
+
+// ─── LOAD DISTRICTS (with merge) ─────────────────────────────────────────
+async function loadDistricts() {
+  try {
+    const rows = parseCSV(await fetchCSV(DISTRICTS_CSV_URL));
+    if (rows.length < 2) return;
+    const congCols = rows[0].slice(2).map(h => normCongress(h||''));
+    const rawRows = rows.slice(1)
+      .filter(r => (r[0]||'').trim() && (r[1]||'').trim())
+      .map(r => {
+        const h = {};
+        congCols.forEach((c,i) => { if(c && r[2+i] && r[2+i].trim()) h[c]=r[2+i].trim(); });
+        return { r:r[0].trim(), d:r[1].trim(), h };
+      });
+    DB.d = mergeDistricts(rawRows).map(d => ({...d, matched:{}}));
+    console.log(`✅ Districts: ${DB.d.length} canonical (merged from ${rawRows.length} raw rows)`);
+  } catch(e) {
+    console.error('loadDistricts failed:', e);
+  }
+}
+
+// ─── FUZZY PERSON LOOKUP ─────────────────────────────────────────────────
+function findPerson(name) {
+  if (!name || !name.trim()) return null;
+  const clean = name.trim();
+  // Exact match first
+  let hit = DB.p.find(p => p.fn===clean||p.n2===clean||p.n===clean);
+  if (hit) return hit;
+  // Case-insensitive
+  const lc = clean.toLowerCase();
+  hit = DB.p.find(p => (p.fn||'').toLowerCase()===lc||(p.n2||'').toLowerCase()===lc);
+  if (hit) return hit;
+  // Fuzzy: only check names starting with same first letter
+  const tSur = surName(clean);
+  if (!tSur) return null;
+  let best = null, bestScore = FUZZY_THRESHOLD;
+  for (const p of DB.p) {
+    if (!surName(p.fn).startsWith(tSur[0])) continue;
+    const score = Math.max(fuzzyScore(clean,p.fn), fuzzyScore(clean,p.n2), fuzzyScore(clean,p.n));
+    if (score > bestScore) { bestScore=score; best=p; }
+  }
+  return best;
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────
 async function init() {
   document.getElementById('kpiRow').innerHTML =
     `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text3)">
-       <div style="font-size:28px;margin-bottom:12px">⏳</div>
-       <div style="font-size:15px;font-weight:500">Loading live data…</div>
-       <div style="font-size:12px;margin-top:6px;opacity:.6">Fetching and fuzzy-matching legislators</div>
-     </div>`;
+      <div style="font-size:28px;margin-bottom:12px">⏳</div>
+      <div style="font-size:15px;font-weight:500">Loading live data from both sources…</div>
+      <div style="font-size:12px;margin-top:6px;opacity:.6">Fetching legislators + districts, then cross-linking with fuzzy matching</div>
+    </div>`;
 
   await Promise.all([loadLegislators(), loadDistricts()]);
 
-  // ── FUZZY CLAN ENRICHMENT ──────────────────────────────
-  // For every rep name in the districts sheet, find their
-  // matching person in the roster and inherit their clan/dynasty.
-  // This fixes the naming mismatch between the two sheets.
+  // ── CROSS-LINK: enrich district reps with roster data ──
+  // For every rep name in the districts sheet, fuzzy-match against
+  // the roster and attach their clan/dynasty info directly.
+  // This is the bridge between the two data sources.
   let enriched = 0;
   for (const d of DB.d) {
     for (const congress of ALL_CONGRESSES) {
       const cell = d.h[congress] || '';
+      if (!cell) continue;
       const names = splitRepNames(cell);
       for (const rawName of names) {
         const match = findPerson(rawName);
-        if (match && match.cl) {
-          // Store the matched person key on the district entry
-          if (!d.matched) d.matched = {};
+        if (match) {
           if (!d.matched[congress]) d.matched[congress] = [];
           d.matched[congress].push(match);
-          enriched++;
+          if (match.cl) enriched++;
+          // Also back-fill: if roster has no district, pull from districts sheet
+          if (!match.di) match.di = d.d;
+          if (!match.rg) match.rg = d.r;
+          // If roster doesn't have this congress term, add it
+          if (!match.tr.includes(congress)) {
+            match.tr.push(congress);
+            match.tt++;
+          }
         }
       }
     }
   }
-  console.log(`✅ Fuzzy enriched ${enriched} district-rep→roster matches`);
+  console.log(`✅ Cross-linked ${enriched} dynasty matches between districts + roster`);
 
-  // ── CLAN MEMBER COUNTS ────────────────────────────────
+  // Sort congress terms chronologically
+  DB.p.forEach(p => {
+    p.tr = [...new Set(p.tr)].sort((a,b) => {
+      const na = parseInt(a), nb = parseInt(b);
+      return na - nb;
+    });
+  });
+
+  // Clan member counts
   const clanCounts = {};
-  DB.p.forEach(p => { if (p.cl) clanCounts[p.cl] = (clanCounts[p.cl]||0)+1; });
-  DB.p.forEach(p => { if (p.cl) p.cm = clanCounts[p.cl]; });
+  DB.p.forEach(p => { if(p.cl) clanCounts[p.cl]=(clanCounts[p.cl]||0)+1; });
+  DB.p.forEach(p => { if(p.cl) p.cm=clanCounts[p.cl]; });
 
-  // ── REGIONS ──────────────────────────────────────────
+  // Regions from both sources
   ALL_REGIONS = [...new Set([
-    ...DB.p.map(p=>p.rg), ...DB.d.map(d=>d.rg)
+    ...DB.p.map(p=>p.rg), ...DB.d.map(d=>d.r)
   ].filter(Boolean))].sort();
 
   buildKPIs();
@@ -600,103 +682,26 @@ async function init() {
   renderDistrictHeader();
 }
 
-// ============================================================
-//  LOAD LEGISLATORS (roster sheet)
-//  Row 1-3: title rows — skip
-//  Row 4:   headers (NAME, NAME2, … FULLNAME, SEX, BIRTHDATE,
-//            CLAN, House_Speaker_Start, House_Leadership …)
-//  Row 5+:  one row per congress term per person
-// ============================================================
-async function loadLegislators() {
-  try {
-    const rows = parseCSV(await fetchCSV(LEGISLATORS_CSV_URL));
-    let hi = rows.findIndex(r => r.some(c => c.trim().toUpperCase() === 'FULLNAME'));
-    if (hi < 0) hi = 3;
-
-    const hdr = rows[hi].map(h =>
-      h.trim().toUpperCase().replace(/[^A-Z0-9]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')
-    );
-    const col = k => hdr.indexOf(k);
-    const iNAME=col('NAME'), iNAME2=col('NAME2'), iREG=col('REGION_PROVINCE'),
-          iDIST=col('DISTRICT'), iPER=col('PERIOD'), iAKA=col('AKA'),
-          iFN=col('FULLNAME'), iSEX=col('SEX'), iBD=col('BIRTHDATE'),
-          iCLAN=col('CLAN'), iSPK=col('HOUSE_SPEAKER_START'), iLEAD=col('HOUSE_LEADERSHIP');
-
-    const map = new Map();
-    for (const r of rows.slice(hi+1)) {
-      const fn = (r[iFN]||'').trim(); if (!fn) continue;
-      if (!map.has(fn)) map.set(fn, {fn,n2:'',n:'',ak:'',rg:'',di:'',sx:'',bd:'',cl:null,sp:false,ld:'',tr:[],tt:0,cm:0});
-      const p = map.get(fn);
-      const rn=(r[iNAME]||'').trim(), r2=(r[iNAME2]||'').trim();
-      if (rn && !rn.startsWith('=') && !p.n2) p.n2 = rn;
-      if (r2 && !r2.startsWith('=') && !p.n)  p.n  = r2;
-      if (!p.rg && r[iREG])  p.rg = r[iREG].trim();
-      if (!p.di && r[iDIST]) p.di = r[iDIST].trim();
-      if (!p.sx && r[iSEX])  p.sx = r[iSEX].trim();
-      if (!p.bd && r[iBD])   p.bd = r[iBD].trim();
-      if (!p.cl && iCLAN>=0 && r[iCLAN])  p.cl = r[iCLAN].trim();
-      if (!p.ld && iLEAD>=0 && r[iLEAD])  p.ld = r[iLEAD].trim();
-      if (!p.ak && iAKA >=0 && r[iAKA])   p.ak = r[iAKA].trim();
-      if (!p.sp && iSPK >=0 && r[iSPK])   p.sp = true;
-      const period = (r[iPER]||'').trim();
-      if (period) { p.tt++; const nc=normCongress(period); if(MODERN_SET.has(nc)) p.tr.push(nc); }
-    }
-    DB.p = [...map.values()].map(p => ({
-      ...p, dy:Boolean(p.cl),
-      sx:(p.sx||'').toLowerCase().startsWith('f')?'F':'M',
-      n2:p.n2||p.fn, n:p.n||p.n2||p.fn
-    }));
-    console.log(`✅ Legislators: ${DB.p.length}, dynasty: ${DB.p.filter(x=>x.dy).length}`);
-  } catch(e) {
-    console.error('loadLegislators failed:', e);
-    document.getElementById('resultsCount').innerHTML =
-      `<span style="color:var(--red)">⚠️ Could not load legislators. Check your Google Sheet is published as CSV.</span>`;
-  }
-}
-
-// ============================================================
-//  LOAD DISTRICTS (reps sheet)
-//  Row 1: Region, District, 20th Congress, 19th congress … 8th Congress
-//  Row 2+: data
-// ============================================================
-async function loadDistricts() {
-  try {
-    const rows = parseCSV(await fetchCSV(DISTRICTS_CSV_URL));
-    if (rows.length < 2) return;
-    const congCols = rows[0].slice(2).map(h => normCongress(h||''));
-    DB.d = rows.slice(1)
-      .filter(r => (r[0]||'').trim() && (r[1]||'').trim())
-      .map(r => {
-        const h = {};
-        congCols.forEach((c,i) => { if(c) h[c] = (r[2+i]||'').trim(); });
-        return { rg:r[0].trim(), di:r[1].trim(), h, matched:{} };
-      });
-    console.log(`✅ Districts: ${DB.d.length}`);
-  } catch(e) { console.error('loadDistricts failed:', e); }
-}
-
-// ============================================================
-//  KPI BUILDER — uses fuzzy-enriched data for accuracy
-// ============================================================
+// ─── KPIs ─────────────────────────────────────────────────────────────────
 function buildKPIs() {
-  const p=DB.p, total=p.length;
-  const dyM=p.filter(x=>x.dy).length;
-  const dyPct=total?(dyM/total*100).toFixed(1):0;
-  const famC={};
+  const p = DB.p, total = p.length;
+  const dyM = p.filter(x=>x.dy).length;
+  const dyPct = total ? (dyM/total*100).toFixed(1) : 0;
+  const famC = {};
   p.filter(x=>x.dy&&x.cl).forEach(x=>{famC[x.cl]=(famC[x.cl]||0)+1;});
-  const numFam=Object.keys(famC).length;
-  const majFam=Object.values(famC).filter(c=>c>=3).length;
-  const biggest=Object.entries(famC).sort((a,b)=>b[1]-a[1])[0];
-  const femDy=p.filter(x=>x.dy&&x.sx==='F').length;
-  const femPct=dyM?(femDy/dyM*100).toFixed(0):0;
-  const spkrs=p.filter(x=>x.dy&&x.sp).length;
+  const numFam = Object.keys(famC).length;
+  const majFam = Object.values(famC).filter(c=>c>=3).length;
+  const biggest = Object.entries(famC).sort((a,b)=>b[1]-a[1])[0];
+  const femDy = p.filter(x=>x.dy&&x.sx==='F').length;
+  const femPct = dyM ? (femDy/dyM*100).toFixed(0) : 0;
+  const spkrs = p.filter(x=>x.dy&&x.sp).length;
 
   document.getElementById('kpiRow').innerHTML = [
-    {label:'Dynasty Members',            val:dyM,          sub:`out of ${total} total legislators`,   icon:'👑',accent:'var(--gold)',      trend:`${dyPct}% of all legislators`},
-    {label:'% Dynasty-Held Seats',       val:dyPct+'%',    sub:'of all legislative seats',            icon:'📊',accent:'var(--red)',       trend:'Across all congresses tracked'},
-    {label:'Political Dynasty Families', val:numFam,       sub:'unique political clans',              icon:'🏰',accent:'var(--purple)',    trend:`${majFam} with 3+ members`},
-    {label:'Largest Dynasty',            val:biggest?biggest[1]:'—', sub:biggest?biggest[0]:'—',     icon:'⚜️',accent:'var(--gold-light)',trend:'Members across all congresses'},
-    {label:'Women in Dynasties',         val:femDy,        sub:`${femPct}% of dynasty members`,       icon:'♀', accent:'#C97EE0',          trend:`${spkrs} Speaker(s) from dynasties`},
+    {label:'Dynasty Members',            val:dyM,      sub:`out of ${total} total legislators`,   icon:'👑',accent:'var(--gold)',      trend:`${dyPct}% of all legislators`},
+    {label:'% Dynasty-Held Seats',       val:dyPct+'%',sub:'of all legislative seats',            icon:'📊',accent:'var(--red)',       trend:'Across all congresses tracked'},
+    {label:'Political Dynasty Families', val:numFam,   sub:'unique political clans',              icon:'🏰',accent:'var(--purple)',    trend:`${majFam} with 3+ members`},
+    {label:'Largest Dynasty',            val:biggest?biggest[1]:'—',sub:biggest?biggest[0]:'—',   icon:'⚜️',accent:'var(--gold-light)',trend:'Members across all congresses'},
+    {label:'Women in Dynasties',         val:femDy,    sub:`${femPct}% of dynasty members`,       icon:'♀', accent:'#C97EE0',          trend:`${spkrs} Speaker(s) from dynasties`},
   ].map(k=>`
     <div class="kpi-card" style="--accent-bar:${k.accent}">
       <div class="kpi-icon">${k.icon}</div>
@@ -707,14 +712,12 @@ function buildKPIs() {
     </div>`).join('');
 }
 
-// ============================================================
-//  POPULATES / SEARCH / RENDER — unchanged logic
-// ============================================================
+// ─── SELECTS ──────────────────────────────────────────────────────────────
 function populateSelects() {
   ['congressSelect','dCongressSelect','cCongressSelect'].forEach(id=>{
     const s=document.getElementById(id); if(!s) return;
     const d=s.options[0].outerHTML;
-    s.innerHTML=d+ALL_CONGRESSES.map(c=>`<option value="${c}">${c}</option>`).join('');
+    s.innerHTML=d+ALL_CONGRESSES.slice().reverse().map(c=>`<option value="${c}">${c}</option>`).join('');
   });
   ['dRegionSelect','cRegionSelect'].forEach(id=>{
     const s=document.getElementById(id); if(!s) return;
@@ -723,11 +726,12 @@ function populateSelects() {
   });
 }
 
+// ─── SEARCH ───────────────────────────────────────────────────────────────
 function debounceSearch(){clearTimeout(debounceTimer);debounceTimer=setTimeout(doSearch,250);}
 
 function doSearch(){
-  const q  =(document.getElementById('nameInput').value||'').toLowerCase().trim();
-  const dq =(document.getElementById('districtInput').value||'').toLowerCase().trim();
+  const q   =(document.getElementById('nameInput').value||'').toLowerCase().trim();
+  const dq  =(document.getElementById('districtInput').value||'').toLowerCase().trim();
   const cong=document.getElementById('congressSelect').value;
   const filt=document.getElementById('filterSelect').value;
   searchResults=DB.p.filter(p=>{
@@ -749,13 +753,14 @@ function clearSearch(){
   doSearch();
 }
 
+// ─── RENDER RESULTS ───────────────────────────────────────────────────────
 function renderResults(){
   const total=searchResults.length;
   const start=(currentPage-1)*PAGE_SIZE;
   const page=searchResults.slice(start,start+PAGE_SIZE);
   document.getElementById('resultsCount').innerHTML=
     `Showing <span>${Math.min(start+PAGE_SIZE,total).toLocaleString()}</span> of <span>${total.toLocaleString()}</span> legislators`;
-  cardMode==='cards'?renderCards(page):renderTable(page);
+  cardMode==='cards' ? renderCards(page) : renderTable(page);
   renderPagination(total);
 }
 
@@ -772,8 +777,9 @@ function personCard(p){
   if(p.dy)     tags.push(`<span class="tag tag-dynasty">👑 Dynasty</span>`);
   if(p.sx==='F') tags.push(`<span class="tag tag-female">♀ Female</span>`);
   if(p.sp)     tags.push(`<span class="tag tag-speaker">🏛 Speaker</span>`);
-  const first=p.tr&&p.tr.length?p.tr[0]:'—';
-  const last =p.tr&&p.tr.length?p.tr[p.tr.length-1]:'—';
+  const sorted = (p.tr||[]).slice().sort((a,b)=>parseInt(a)-parseInt(b));
+  const first = sorted[0]||'—';
+  const last  = sorted[sorted.length-1]||'—';
   return `<div class="person-card ${p.dy?'dynasty':''}" onclick="openModal('${encodeURIComponent(p.fn)}')">
     <div class="pc-name">${p.fn||p.n2||'Unknown'}</div>
     <div class="pc-name2">${p.n2||''}</div>
@@ -807,7 +813,7 @@ function renderTable(items){
           <td class="${p.dy?'dynasty-cell':''}">${p.cl||'—'}</td>
           <td style="text-align:center">${p.tt||0}</td>
           <td>${p.sx==='F'?'Female':p.sx==='M'?'Male':'—'}</td>
-          <td>${p.tr&&p.tr.length?p.tr[p.tr.length-1]:'—'}</td>
+          <td>${(p.tr&&p.tr.length)?p.tr[p.tr.length-1]:'—'}</td>
         </tr>`).join('')}
       </tbody>
     </table></div>`;
@@ -825,49 +831,51 @@ function renderPagination(total){
   b+=`<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>`;
   document.getElementById('pagination').innerHTML=b;
 }
-
 function pageRange(cur,total){
   if(total<=7) return Array.from({length:total},(_,i)=>i+1);
   if(cur<=4)   return [1,2,3,4,5,'…',total];
   if(cur>=total-3) return [1,'…',total-4,total-3,total-2,total-1,total];
   return [1,'…',cur-1,cur,cur+1,'…',total];
 }
-
 function goPage(p){
   const pages=Math.ceil(searchResults.length/PAGE_SIZE);
   if(p<1||p>pages) return;
   currentPage=p; renderResults();
   window.scrollTo({top:180,behavior:'smooth'});
 }
-
 function setCardView(mode,btn){
   cardMode=mode;
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active'); renderResults();
 }
-
 function emptyState(icon,text){
   return `<div class="empty"><div class="empty-icon">${icon}</div><div class="empty-text">${text}</div></div>`;
 }
 
-// ============================================================
-//  MODAL — fuzzy-powered: clicking a district rep name
-//  opens their full profile even if names don't match exactly
-// ============================================================
+// ─── MODAL ────────────────────────────────────────────────────────────────
 function openModal(encodedName){
   const name=decodeURIComponent(encodedName);
-  // Try exact first, then fuzzy
-  let p = DB.p.find(x=>x.fn===name||x.n2===name||x.n===name) || findPerson(name);
+  const p = DB.p.find(x=>x.fn===name||x.n2===name||x.n===name) || findPerson(name);
   if(!p) return;
 
   document.getElementById('modalName').textContent=p.fn||p.n2;
   document.getElementById('modalName2').textContent=p.n2+(p.ak?' · AKA: '+p.ak:'');
 
+  const sorted = (p.tr||[]).slice().sort((a,b)=>parseInt(a)-parseInt(b));
+
+  // Find which districts this person represented (from districts sheet cross-link)
+  const repDistricts = DB.d.filter(d =>
+    Object.values(d.matched||{}).some(arr => arr.some(m => m.fn===p.fn))
+  );
+  const districtStr = repDistricts.length
+    ? repDistricts.map(d=>d.d).join(', ')
+    : p.di || '—';
+
   const info=[
     {lbl:'Sex',              val:p.sx==='F'?'Female':p.sx==='M'?'Male':'Unknown'},
     {lbl:'Birthdate',        val:p.bd||'—'},
     {lbl:'Region/Province',  val:p.rg||'—'},
-    {lbl:'District',         val:p.di||'—'},
+    {lbl:'District(s)',      val:districtStr},
     {lbl:'Dynasty / Clan',   val:p.cl||'None', cls:p.dy?'dynasty':''},
     {lbl:'Clan Members',     val:p.cm>=2?p.cm+' members in Congress':'—'},
     {lbl:'Total Terms',      val:p.tt||0},
@@ -877,9 +885,9 @@ function openModal(encodedName){
     <div class="info-item"><div class="info-lbl">${i.lbl}</div>
     <div class="info-val ${i.cls||''}">${i.val}</div></div>`).join('')}</div>`;
 
-  if(p.tr&&p.tr.length){
+  if(sorted.length){
     html+=`<div class="section-head">📅 Congress Timeline</div>
-    <div class="timeline">${p.tr.map(per=>`
+    <div class="timeline">${sorted.map(per=>`
       <div class="tl-item"><div class="tl-dot"></div>
       <div class="tl-period">${per}</div></div>`).join('')}</div>`;
   }
@@ -909,21 +917,18 @@ function openModal(encodedName){
   document.getElementById('modalOverlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
-
 function closeModal(e){
   if(e&&e.target!==document.getElementById('modalOverlay')) return;
   document.getElementById('modalOverlay').classList.remove('open');
   document.body.style.overflow='';
 }
 
-// ============================================================
-//  DISTRICTS VIEW — fuzzy-highlighted dynasty reps
-// ============================================================
+// ─── DISTRICTS VIEW ───────────────────────────────────────────────────────
 function renderDistrictHeader(){
   document.getElementById('districtThead').innerHTML=`<tr>
     <th style="min-width:200px">Region</th>
     <th style="min-width:220px">District</th>
-    ${ALL_CONGRESSES.map(c=>`<th style="min-width:120px">${c}</th>`).join('')}
+    ${ALL_CONGRESSES.slice().reverse().map(c=>`<th style="min-width:120px">${c}</th>`).join('')}
   </tr>`;
 }
 
@@ -931,44 +936,42 @@ function renderDistricts(){
   const q   =(document.getElementById('dSearchInput').value||'').toLowerCase();
   const reg =document.getElementById('dRegionSelect').value;
   const cong=document.getElementById('dCongressSelect').value;
+  const displayCongs = ALL_CONGRESSES.slice().reverse();
 
   let rows='', curReg='';
   DB.d.filter(d=>{
-    if(reg&&d.rg!==reg) return false;
-    if(q&&!(d.rg||'').toLowerCase().includes(q)&&!(d.di||'').toLowerCase().includes(q)) return false;
-    if(cong&&!d.h[cong]) return false;
+    if(reg && d.r!==reg) return false;
+    if(q && !(d.r+'|'+d.d).toLowerCase().includes(q)) return false;
+    if(cong && !d.h[cong]) return false;
     return true;
   }).forEach(d=>{
-    if(d.rg!==curReg){
-      curReg=d.rg;
-      rows+=`<tr class="region-row"><td colspan="${2+ALL_CONGRESSES.length}">${d.rg}</td></tr>`;
+    if(d.r!==curReg){
+      curReg=d.r;
+      rows+=`<tr class="region-row"><td colspan="${2+displayCongs.length}">${d.r}</td></tr>`;
     }
-    rows+=`<tr><td>${d.rg}</td><td style="font-weight:500">${d.di}</td>
-      ${ALL_CONGRESSES.map(c=>{
-        const raw=d.h[c]||'';
-        // Use fuzzy-matched persons if available
-        const matchedPersons=(d.matched&&d.matched[c])||[];
-        const isDyn = matchedPersons.some(mp=>mp.dy) ||
-          (raw && DB.p.some(p=>p.dy&&(
-            fuzzyScore(raw,p.fn)>=FUZZY_THRESHOLD ||
-            fuzzyScore(raw,p.n2)>=FUZZY_THRESHOLD
-          )));
-        // For click — use raw name, openModal will fuzzy-match
-        const clickName=encodeURIComponent(raw.split(';')[0].trim());
+    rows+=`<tr><td>${d.r}</td><td style="font-weight:500">${d.d}</td>
+      ${displayCongs.map(c=>{
+        const raw = d.h[c]||'';
+        const matchedPersons = (d.matched&&d.matched[c])||[];
+        const isDyn = matchedPersons.some(m=>m.dy) ||
+          splitRepNames(raw).some(name => {
+            const mp = findPerson(name);
+            return mp && mp.dy;
+          });
+        const display = raw || '—';
+        const firstRaw = splitRepNames(raw)[0]||'';
+        const clickEnc = firstRaw ? encodeURIComponent(firstRaw) : '';
         return `<td title="${raw}"
-          ${isDyn?'style="color:var(--gold);font-weight:600"':''}
-          ${raw?`onclick="openModal('${clickName}')" style="cursor:pointer${isDyn?';color:var(--gold);font-weight:600':''}"`:''}>
-          ${raw||'—'}
-        </td>`;
+          style="${isDyn?'color:var(--gold);font-weight:600':''};${raw?'cursor:pointer':''}"
+          ${clickEnc?`onclick="openModal('${clickEnc}')"`:''}>${display}</td>`;
       }).join('')}</tr>`;
   });
-  document.getElementById('districtTbody').innerHTML=rows||
-    `<tr><td colspan="15" style="text-align:center;padding:40px;color:var(--text3)">No districts match.</td></tr>`;
+
+  document.getElementById('districtTbody').innerHTML = rows ||
+    `<tr><td colspan="${2+ALL_CONGRESSES.length+2}" style="text-align:center;padding:40px;color:var(--text3)">No districts match.</td></tr>`;
 }
 
-// ============================================================
-//  DYNASTIES VIEW
-// ============================================================
+// ─── DYNASTIES VIEW ───────────────────────────────────────────────────────
 function renderDynasties(){
   const q  =(document.getElementById('clanSearchInput').value||'').toLowerCase();
   const min=parseInt(document.getElementById('clanMinSelect').value)||2;
@@ -1010,20 +1013,41 @@ function renderDynasties(){
   }).join('');
 }
 
-// ============================================================
-//  CONGRESS VIEW
-// ============================================================
+// ─── CONGRESS VIEW ────────────────────────────────────────────────────────
 function renderCongressView(){
   const cong=document.getElementById('cCongressSelect').value;
   const reg =document.getElementById('cRegionSelect').value;
   const sex =document.getElementById('cSexSelect').value;
   if(!cong){document.getElementById('congressContent').innerHTML=emptyState('📜','Select a Congress period above.');return;}
-  const members=DB.p.filter(p=>{
+
+  // Pull members from BOTH sources:
+  // 1. Roster: anyone with this congress in their tr[]
+  // 2. Districts: anyone who appears in this congress column, even if not in roster
+  const rosterSet = new Set();
+  const members = DB.p.filter(p=>{
     if(!(p.tr||[]).includes(cong)) return false;
     if(reg&&p.rg!==reg) return false;
     if(sex&&p.sx!==sex) return false;
+    rosterSet.add(p.fn);
     return true;
   });
+
+  // Add district-only reps (in districts sheet for this congress but not in roster)
+  for (const d of DB.d) {
+    if(reg && d.r!==reg) continue;
+    const cell = d.h[cong];
+    if(!cell) continue;
+    const names = splitRepNames(cell);
+    for (const rawName of names) {
+      const matched = findPerson(rawName);
+      if(matched && !rosterSet.has(matched.fn)){
+        if(sex && matched.sx!==sex) continue;
+        members.push(matched);
+        rosterSet.add(matched.fn);
+      }
+    }
+  }
+
   const dynC=members.filter(p=>p.dy).length;
   const femC=members.filter(p=>p.sx==='F').length;
   const dynF=[...new Set(members.filter(p=>p.dy&&p.cl).map(p=>p.cl))].length;
@@ -1039,9 +1063,7 @@ function renderCongressView(){
     <div class="person-grid fade-in">${members.map(personCard).join('')}</div>`;
 }
 
-// ============================================================
-//  NAV
-// ============================================================
+// ─── NAV ──────────────────────────────────────────────────────────────────
 function showView(view){
   currentView=view;
   ['search','districts','dynasties','congress'].forEach(v=>{
@@ -1056,7 +1078,7 @@ function showView(view){
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape') closeModal();});
-window.addEventListener('load',init);
+window.addEventListener('load', init);
 </script>
 </body>
 </html>
