@@ -22,21 +22,25 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--text);m
 ::-webkit-scrollbar-track{background:var(--navy2)}
 ::-webkit-scrollbar-thumb{background:var(--navy3);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--gold-dim)}
-.header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 50%,#0D1F3C 100%);border-bottom:1px solid var(--gold-dim);padding:0 32px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:64px;}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 50%,#0D1F3C 100%);
+  border-bottom:1px solid var(--gold-dim);
+  padding:0 32px;position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;height:64px;
+}
 .logo{display:flex;align-items:center;gap:12px}
 .logo-flag{font-size:28px;line-height:1}
 .logo-text{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--gold-light);letter-spacing:.5px}
 .logo-sub{font-size:11px;color:var(--text3);font-weight:400;letter-spacing:.5px;text-transform:uppercase}
-.nav{display:flex;gap:4px;flex-wrap:wrap}
+.nav{display:flex;gap:4px}
 .nav-btn{padding:8px 16px;border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
 .nav-btn:hover,.nav-btn.active{background:var(--surface3);color:var(--gold-light)}
+
 .main{padding:28px 32px;max-width:1600px;margin:0 auto}
-#loadingScreen{position:fixed;inset:0;background:var(--navy);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
-.load-spinner{width:48px;height:48px;border:3px solid var(--surface3);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.load-text{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold-light)}
-.load-sub{font-size:13px;color:var(--text3)}
-#errorBanner{display:none;background:#2A0F0F;border:1px solid var(--red);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;color:#F08080;font-size:13px;line-height:1.6}
+
+/* KPI ROW */
 .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px}
 .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;position:relative;overflow:hidden;transition:border-color .2s,transform .15s;cursor:default;}
 .kpi-card:hover{border-color:var(--gold-dim);transform:translateY(-2px)}
@@ -46,7 +50,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--text);m
 .kpi-sub{font-size:12px;color:var(--text3);margin-top:6px}
 .kpi-icon{position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:32px;opacity:.15}
 .kpi-trend{font-size:11px;margin-top:4px;font-weight:600}
-.kpi-trend.up{color:var(--red)}.kpi-trend.neutral{color:var(--text3)}
+.kpi-trend.up{color:var(--red)}
+.kpi-trend.neutral{color:var(--text3)}
+
+/* SEARCH PANEL */
 .search-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;}
 .search-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .search-grid{display:grid;grid-template-columns:2fr 1.5fr 1.5fr 1fr;gap:12px;align-items:end}
@@ -56,13 +63,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--text);m
 .search-input:focus,.search-select:focus{border-color:var(--gold-dim)}
 .search-input::placeholder{color:var(--text3)}
 .search-select option{background:var(--navy2)}
-.btn{padding:10px 20px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn{padding:10px 20px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
+.btn-primary{background:var(--gold);color:var(--navy);}
+.btn-primary:hover{background:var(--gold-light)}
 .btn-ghost{background:transparent;color:var(--text3);border:1px solid var(--border)}
 .btn-ghost:hover{border-color:var(--text3);color:var(--text)}
 .search-actions{display:flex;gap:8px}
+
+/* TABS */
 .tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:20px;width:fit-content}
 .tab{padding:8px 20px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;border:none;background:transparent;color:var(--text3)}
 .tab.active{background:var(--surface3);color:var(--gold-light)}
+
+/* RESULTS */
 .results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .results-count{font-size:13px;color:var(--text3)}
 .results-count span{color:var(--gold-light);font-weight:600}
@@ -76,13 +89,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--text);m
 .pc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
 .tag{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500;letter-spacing:.3px}
 .tag-region{background:#1E2F48;color:#7BADD4}
+.tag-clan{background:#2A1F00;color:var(--gold-light)}
 .tag-female{background:#1F1528;color:#C97EE0}
+.tag-male{background:#0F1E30;color:#7BADD4}
 .tag-speaker{background:#1A2E00;color:#7BD47B}
 .tag-dynasty{background:var(--dynasty-bg);color:var(--gold);border:1px solid var(--dynasty-border)}
 .pc-stats{display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
 .pc-stat{text-align:center}
 .pc-stat-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--text)}
 .pc-stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+
+/* DISTRICT TABLE */
 .district-table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse;font-size:13px}
 thead th{background:var(--surface2);color:var(--text2);font-weight:600;padding:12px 14px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;z-index:2;}
@@ -93,6 +110,8 @@ tbody tr.region-row td{color:var(--gold-light);font-weight:600;font-size:12px;te
 tbody td{padding:10px 14px;color:var(--text2);white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
 tbody td:first-child{color:var(--text);font-weight:500}
 .dynasty-cell{color:var(--gold)!important;font-weight:600!important}
+
+/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;}
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal{background:var(--navy2);border:1px solid var(--border);border-radius:16px;max-width:760px;width:100%;max-height:88vh;overflow-y:auto;transform:translateY(20px);transition:transform .25s;}
@@ -114,34 +133,71 @@ tbody td:first-child{color:var(--text);font-weight:500}
 .tl-item:last-child{border-bottom:none}
 .tl-dot{width:10px;height:10px;border-radius:50%;background:var(--gold);margin-top:4px;flex-shrink:0}
 .tl-period{font-family:'DM Mono',monospace;font-size:13px;color:var(--gold-light);min-width:140px;font-weight:500}
+.tl-detail{font-size:13px;color:var(--text2)}
+.tl-years{font-size:12px;color:var(--text3);margin-top:2px}
+
+/* DYNASTY PANEL */
+.dynasty-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px}
+.clan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.clan-card{background:var(--dynasty-bg);border:1px solid var(--dynasty-border);border-radius:10px;padding:16px;cursor:pointer;transition:all .2s;}
+.clan-card:hover{border-color:var(--gold-light);transform:translateY(-2px)}
+.clan-name{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold-light);margin-bottom:6px}
+.clan-members{font-size:12px;color:var(--text3)}
+.clan-count{font-family:'DM Mono',monospace;font-size:24px;font-weight:500;color:var(--gold);float:right;margin-top:-8px}
+
 .empty{text-align:center;padding:60px 20px;color:var(--text3)}
 .empty-icon{font-size:40px;margin-bottom:12px}
 .empty-text{font-size:15px}
+
 .pagination{display:flex;gap:8px;justify-content:center;margin-top:24px;flex-wrap:wrap}
 .page-btn{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text3);font-size:13px;cursor:pointer;transition:all .2s;}
 .page-btn:hover,.page-btn.active{background:var(--surface3);color:var(--gold-light);border-color:var(--gold-dim)}
 .page-btn:disabled{opacity:.4;cursor:default}
+
+/* GUIDE VIEW */
+.guide-view{max-width:900px}
+.guide-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:20px}
+.guide-section-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--gold-light);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.guide-section-sub{font-size:13px;color:var(--text3);margin-bottom:20px}
+.step{display:flex;gap:16px;margin-bottom:18px;align-items:flex-start}
+.step-num{width:32px;height:32px;border-radius:50%;background:var(--gold);color:var(--navy);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-body{}
+.step-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.6}
+.step-desc code{background:var(--navy3);padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:12px;color:var(--gold-light)}
+.step-desc a{color:var(--blue);text-decoration:none}
+.step-desc a:hover{text-decoration:underline}
+.formula-box{background:var(--navy);border:1px solid var(--dynasty-border);border-radius:8px;padding:14px 16px;margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;color:var(--gold-light);line-height:1.7;white-space:pre-wrap;word-break:break-all}
+.tip-box{background:#0D2A1A;border:1px solid #2E6040;border-radius:8px;padding:12px 16px;margin-top:8px;font-size:12px;color:#7BD47B;display:flex;gap:8px;align-items:flex-start}
+.warn-box{background:#2A1A08;border:1px solid var(--dynasty-border);border-radius:8px;padding:12px 16px;margin-top:8px;font-size:12px;color:var(--gold-light);display:flex;gap:8px;align-items:flex-start}
+.guide-divider{height:1px;background:var(--border);margin:20px 0}
+.sheet-preview{background:var(--navy);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:10px}
+.sheet-header{background:var(--surface2);padding:8px 14px;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.sheet-row{display:grid;font-size:12px;padding:6px 14px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace}
+.sheet-row.head{background:var(--surface3);color:var(--gold-light);font-weight:600}
+.sheet-row.data{color:var(--text2)}
+.sheet-row.data:last-child{border-bottom:none}
+.col-pill{background:var(--navy3);padding:1px 6px;border-radius:3px;color:var(--text3);font-size:10px;margin-right:4px}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;margin-left:8px}
+.badge-new{background:#1A3520;color:#5ECC7B;border:1px solid #2E6040}
 .section-divider{height:1px;background:var(--border);margin:24px 0}
 .fade-in{animation:fadeIn .3s ease-out forwards}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{opacity:.4}50%{opacity:.8}100%{opacity:.4}}
+
 @media(max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:800px){.search-grid{grid-template-columns:1fr 1fr}.kpi-row{grid-template-columns:repeat(2,1fr)}.main{padding:16px}.header{padding:12px 16px;height:auto;flex-direction:column;gap:8px}.person-grid{grid-template-columns:1fr}}
+@media(max-width:800px){.search-grid{grid-template-columns:1fr 1fr}.kpi-row{grid-template-columns:repeat(2,1fr)}.main{padding:16px}.header{padding:0 16px}.person-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
-<div id="loadingScreen">
-  <div class="load-spinner"></div>
-  <div class="load-text">Loading Dynasty Data…</div>
-  <div class="load-sub">Connecting to Google Sheets</div>
-</div>
 
 <header class="header">
   <div class="logo">
     <span class="logo-flag">🇵🇭</span>
     <div>
       <div class="logo-text">PH Congress Dynasty Tracker</div>
-      <div class="logo-sub">8th – 20th Congress · Live Data</div>
+      <div class="logo-sub">8th – 20th Congress · 1907–Present</div>
     </div>
   </div>
   <nav class="nav">
@@ -149,27 +205,29 @@ tbody td:first-child{color:var(--text);font-weight:500}
     <button class="nav-btn" onclick="showView('districts')">🗺️ Districts</button>
     <button class="nav-btn" onclick="showView('dynasties')">👑 Dynasties</button>
     <button class="nav-btn" onclick="showView('congress')">📜 Congress</button>
+    <button class="nav-btn" onclick="showView('guide')" style="border-left:1px solid var(--border);margin-left:4px">📊 Google Sheets Guide</button>
   </nav>
 </header>
 
 <main class="main">
-  <div id="errorBanner"></div>
+  <!-- KPI ROW -->
   <div class="kpi-row" id="kpiRow"></div>
 
+  <!-- SEARCH VIEW -->
   <div id="view-search">
     <div class="search-panel">
-      <div class="search-title">🔍 Search &amp; Filter Legislators</div>
+      <div class="search-title">🔍 Search & Filter Legislators</div>
       <div class="search-grid">
         <div class="field-group">
-          <label class="field-label">Search by Name</label>
-          <input class="search-input" id="nameInput" placeholder="e.g. Marcos, Aquino, Romualdez…" oninput="debounceSearch()">
+          <label class="field-label">Search by Name (any format)</label>
+          <input class="search-input" id="nameInput" placeholder="e.g. Marcos, Aquino, Bong, Aurora Abad…" oninput="debounceSearch()">
         </div>
         <div class="field-group">
-          <label class="field-label">Region / District</label>
-          <input class="search-input" id="districtInput" placeholder="e.g. Cebu, Batanes, 1st District…" oninput="debounceSearch()">
+          <label class="field-label">Filter by District</label>
+          <input class="search-input" id="districtInput" placeholder="e.g. Lone, 1st District, Batanes…" oninput="debounceSearch()">
         </div>
         <div class="field-group">
-          <label class="field-label">Filter by Congress</label>
+          <label class="field-label">Filter by Congress / Timeline</label>
           <select class="search-select" id="congressSelect" onchange="doSearch()">
             <option value="">All Congresses</option>
           </select>
@@ -201,13 +259,14 @@ tbody td:first-child{color:var(--text);font-weight:500}
     <div class="pagination" id="pagination"></div>
   </div>
 
+  <!-- DISTRICTS VIEW -->
   <div id="view-districts" style="display:none">
     <div class="search-panel">
       <div class="search-title">🗺️ District Representative History</div>
       <div class="search-grid" style="grid-template-columns:2fr 1.5fr 1fr">
         <div class="field-group">
           <label class="field-label">Search District or Province</label>
-          <input class="search-input" id="dSearchInput" placeholder="e.g. Manila, Batanes, Cebu…" oninput="renderDistricts()">
+          <input class="search-input" id="dSearchInput" placeholder="e.g. Manila, Batanes, Cebu, 1st District…" oninput="renderDistricts()">
         </div>
         <div class="field-group">
           <label class="field-label">Filter by Region</label>
@@ -224,10 +283,14 @@ tbody td:first-child{color:var(--text);font-weight:500}
       </div>
     </div>
     <div class="district-table-wrap">
-      <table><thead id="districtThead"></thead><tbody id="districtTbody"></tbody></table>
+      <table id="districtTable">
+        <thead id="districtThead"></thead>
+        <tbody id="districtTbody"></tbody>
+      </table>
     </div>
   </div>
 
+  <!-- DYNASTIES VIEW -->
   <div id="view-dynasties" style="display:none">
     <div class="search-panel">
       <div class="search-title">👑 Political Dynasty Families</div>
@@ -254,6 +317,7 @@ tbody td:first-child{color:var(--text);font-weight:500}
     <div id="dynastyContent"></div>
   </div>
 
+  <!-- CONGRESS VIEW -->
   <div id="view-congress" style="display:none">
     <div class="search-panel">
       <div class="search-title">📜 Browse by Congress Period</div>
@@ -282,10 +346,360 @@ tbody td:first-child{color:var(--text);font-weight:500}
     </div>
     <div id="congressContent"></div>
   </div>
+
+  <!-- GOOGLE SHEETS GUIDE VIEW -->
+  <div id="view-guide" style="display:none">
+    <div class="guide-view fade-in">
+
+      <div class="guide-section">
+        <div class="guide-section-title">📊 Google Sheets — Live Dynasty Dashboard</div>
+        <div class="guide-section-sub">Follow these steps to replicate this dashboard in Google Sheets with live data that auto-updates whenever your source files change. Estimated setup time: 45–60 minutes.</div>
+
+        <div style="background:var(--navy);border:1px solid var(--dynasty-border);border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;gap:16px;align-items:center">
+          <div style="font-size:28px">🏆</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--gold-light);margin-bottom:4px">Why Google Sheets over Power BI?</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.6">Google Sheets wins for this use case: it's free, shareable via link, works natively with CSV/Google Drive files, has built-in pivot tables, and supports Apps Script for live automation — no desktop software, no licenses needed.</div>
+          </div>
+        </div>
+
+        <div class="guide-divider"></div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px">🗂 Step 1 — Set Up Your Source Data Sheets</div>
+
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Create a new Google Spreadsheet</div>
+            <div class="step-desc">Go to <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> → click <code>Blank</code>. Name it <code>PH Congress Dynasty Tracker</code>. You'll create multiple sheets (tabs) inside it.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Create the "legislators" source sheet</div>
+            <div class="step-desc">Right-click the tab at the bottom → <code>Rename</code> → type <code>legislators</code>. Add these exact column headers in Row 1:</div>
+            <div class="sheet-preview">
+              <div class="sheet-header">legislators sheet — Column Headers (Row 1)</div>
+              <div class="sheet-row head" style="grid-template-columns:repeat(10,1fr)">
+                <span>full_name</span><span>sort_name</span><span>region</span><span>district</span><span>clan</span><span>is_dynasty</span><span>sex</span><span>total_terms</span><span>last_congress</span><span>congresses_served</span>
+              </div>
+              <div class="sheet-row data" style="grid-template-columns:repeat(10,1fr)">
+                <span>Bongbong Marcos</span><span>MARCOS, BM</span><span>Ilocos Norte</span><span>2nd District</span><span>Marcos</span><span>TRUE</span><span>M</span><span>4</span><span>19th Congress</span><span>11th,13th,15th,19th</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Create the "districts" source sheet</div>
+            <div class="step-desc">Add a new tab named <code>districts</code>. Columns: <code>region</code>, <code>district</code>, then one column per congress (e.g. <code>8th_Congress</code>, <code>9th_Congress</code> … <code>20th_Congress</code>), each cell containing the representative's name.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Import your existing CSV/HTML data</div>
+            <div class="step-desc">If your data is already in CSV files: <code>File → Import → Upload</code> → choose your CSV → select <code>Insert into current sheet</code>. The sheet will stay linked — when you re-import, your formulas on other sheets will auto-recalculate.
+            <div class="tip-box">💡 <div>Pro tip: Upload your CSV to Google Drive first, then use <code>=IMPORTRANGE()</code> or <code>=QUERY()</code> to pull it in — this way updates to the Drive file reflect instantly without re-importing manually.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-divider"></div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px">📐 Step 2 — Build the Dynasty KPI Dashboard Sheet</div>
+
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">Create a new tab named "dashboard"</div>
+            <div class="step-desc">This tab will show all the KPI stats that mirror the ones at the top of this HTML dashboard. All formulas reference the <code>legislators</code> sheet and recalculate live whenever data changes.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <div class="step-title">KPI 1 — Total Legislators</div>
+            <div class="step-desc">In cell <code>B2</code>, enter the label <code>Total Legislators</code>. In <code>C2</code>:</div>
+            <div class="formula-box">=COUNTA(legislators!A2:A)</div>
+            <div class="step-desc" style="margin-top:8px">This counts every non-empty row in the full_name column, giving you the total headcount. Updates live when rows are added.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">7</div>
+          <div class="step-body">
+            <div class="step-title">KPI 2 — Number of Political Dynasties</div>
+            <div class="step-desc">Label: <code>Political Dynasties</code>. In <code>C3</code>:</div>
+            <div class="formula-box">=SUMPRODUCT((EXACT(legislators!F2:F,"TRUE"))*(1/COUNTIF(legislators!E2:E,legislators!E2:E)))</div>
+            <div class="step-desc" style="margin-top:8px">This counts each unique clan name only once, but only where <code>is_dynasty = TRUE</code>. So if Marcos has 5 members, they count as 1 dynasty, not 5.</div>
+            <div class="warn-box">⚠️ <div>Make sure the <code>is_dynasty</code> column uses exactly <code>TRUE</code>/<code>FALSE</code> (not "Yes"/"No"). You can set data validation on that column: <code>Data → Data Validation → Checkbox</code>.</div></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">8</div>
+          <div class="step-body">
+            <div class="step-title">KPI 3 — Percentage of Dynasty Members</div>
+            <div class="step-desc">Label: <code>Dynasty %</code>. In <code>C4</code>:</div>
+            <div class="formula-box">=COUNTIF(legislators!F2:F,TRUE)/COUNTA(legislators!A2:A)</div>
+            <div class="step-desc" style="margin-top:8px">Format this cell as a percentage: select the cell → click the <code>%</code> button in the toolbar. This mirrors the "% of all legislators who belong to dynasties" KPI from the dashboard.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">9</div>
+          <div class="step-body">
+            <div class="step-title">KPI 4 — Largest Dynasty (Most Members)</div>
+            <div class="step-desc">Label: <code>Largest Dynasty</code>. In <code>C5</code> (name) and <code>D5</code> (count):</div>
+            <div class="formula-box">=INDEX(legislators!E2:E,MATCH(MAX(COUNTIF(legislators!E2:E,legislators!E2:E)),COUNTIF(legislators!E2:E,legislators!E2:E),0))
+
+=MAX(COUNTIF(legislators!E2:E,legislators!E2:E))</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">10</div>
+          <div class="step-body">
+            <div class="step-title">KPI 5 — Multi-Generational Dynasties (3+ Members)</div>
+            <div class="step-desc">Label: <code>Major Dynasties (3+ members)</code>. In <code>C6</code>:</div>
+            <div class="formula-box">=SUMPRODUCT((COUNTIFS(legislators!E2:E,legislators!E2:E,legislators!F2:F,TRUE)>=3)*(EXACT(legislators!F2:F,"TRUE"))*(1/COUNTIF(legislators!E2:E,legislators!E2:E)))</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">11</div>
+          <div class="step-body">
+            <div class="step-title">KPI 6 — Female Dynasty Members</div>
+            <div class="step-desc">Label: <code>Female in Dynasties</code>. In <code>C7</code>:</div>
+            <div class="formula-box">=COUNTIFS(legislators!F2:F,TRUE,legislators!G2:G,"F")</div>
+            <div class="step-desc" style="margin-top:8px">And the percentage — in <code>D7</code>:</div>
+            <div class="formula-box">=C7/COUNTIF(legislators!G2:G,"F")</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">12</div>
+          <div class="step-body">
+            <div class="step-title">KPI 7 — Dynasty Seats by Region</div>
+            <div class="step-desc">Label: <code>Dynasty-Dominated Regions</code>. In <code>C8</code>, count regions where over 50% of legislators are dynasty members:</div>
+            <div class="formula-box">=SUMPRODUCT((COUNTIFS(legislators!C2:C,UNIQUE(legislators!C2:C),legislators!F2:F,TRUE)/COUNTIF(legislators!C2:C,UNIQUE(legislators!C2:C)))>0.5)</div>
+            <div class="tip-box">💡 <div>If UNIQUE() isn't available (older Sheets), use a helper column with <code>=UNIQUE(legislators!C2:C)</code> in a side area, then reference that range.</div></div>
+          </div>
+        </div>
+
+        <div class="guide-divider"></div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px">📊 Step 3 — Build the Dynasty Breakdown Pivot Table</div>
+
+        <div class="step">
+          <div class="step-num">13</div>
+          <div class="step-body">
+            <div class="step-title">Create a pivot table for dynasty family counts</div>
+            <div class="step-desc">Click any cell in the <code>legislators</code> sheet → <code>Insert → Pivot Table</code> → choose <code>New Sheet</code> → name it <code>dynasty_pivot</code>. Configure it:
+            <br><br>
+            • <b>Rows:</b> <code>clan</code><br>
+            • <b>Filter:</b> <code>is_dynasty = TRUE</code><br>
+            • <b>Values:</b> <code>full_name</code> — summarized by <code>COUNTA</code><br>
+            • <b>Sort:</b> Values descending (largest dynasties first)
+            </div>
+            <div class="tip-box">💡 <div>This pivot table will auto-refresh every time you add a new row to the legislators sheet. No manual refresh needed.</div></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">14</div>
+          <div class="step-body">
+            <div class="step-title">Add a bar chart from the pivot table</div>
+            <div class="step-desc">Select the clan + count columns in the pivot table → <code>Insert → Chart</code> → choose <code>Bar chart</code>. In Chart Editor:
+            <br><br>
+            • Set <b>X-axis</b> to clan names<br>
+            • Set <b>Series</b> to member counts<br>
+            • Under <b>Customize → Chart style</b>: set background to a dark color (<code>#0A1628</code>) and bar color to <code>#C9922A</code> (gold) to match this dashboard's aesthetic
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-divider"></div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px">⚡ Step 4 — Make It Live with Apps Script (Auto-Refresh)</div>
+
+        <div class="step">
+          <div class="step-num">15</div>
+          <div class="step-body">
+            <div class="step-title">Open the Apps Script editor</div>
+            <div class="step-desc">In your spreadsheet: <code>Extensions → Apps Script</code>. This opens a code editor where you can automate the spreadsheet.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">16</div>
+          <div class="step-body">
+            <div class="step-title">Add a script to auto-import from a Google Drive CSV</div>
+            <div class="step-desc">Delete any existing code and paste this. Replace <code>YOUR_FILE_ID</code> with the ID from your CSV file's Google Drive URL:</div>
+            <div class="formula-box">function importDynastyData() {
+  var fileId = "YOUR_FILE_ID"; // from Drive URL
+  var file = DriveApp.getFileById(fileId);
+  var csv = file.getBlob().getDataAsString();
+  var rows = Utilities.parseCsv(csv);
+  
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("legislators");
+  
+  sheet.clearContents();
+  sheet.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
+  
+  // Log the refresh time
+  var dashSheet = ss.getSheetByName("dashboard");
+  dashSheet.getRange("A1").setValue("Last updated: " + new Date().toLocaleString());
+}
+
+// Run every hour automatically:
+function createTimeTrigger() {
+  ScriptApp.newTrigger("importDynastyData")
+    .timeBased()
+    .everyHours(1)
+    .create();
+}</div>
+            <div class="step-desc" style="margin-top:8px">Click <b>Save</b> (floppy disk icon). Then click <b>Run</b> → select <code>createTimeTrigger</code> once to register the hourly auto-refresh. Grant permissions when prompted.</div>
+            <div class="warn-box">⚠️ <div>The first time you run any Apps Script function, Google will ask for permissions. Click <code>Advanced → Go to [project name]</code> and allow access. This is normal.</div></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">17</div>
+          <div class="step-body">
+            <div class="step-title">Alternative: Use IMPORTDATA for a live web-hosted CSV</div>
+            <div class="step-desc">If your CSV is hosted online (e.g. a GitHub raw URL or public Google Drive link), you can skip Apps Script entirely. In cell <code>A1</code> of your legislators sheet:</div>
+            <div class="formula-box">=IMPORTDATA("https://your-csv-url-here.csv")</div>
+            <div class="step-desc" style="margin-top:8px">Google Sheets will re-fetch this CSV every ~60 minutes automatically. All formulas on the dashboard sheet will recalculate after each fetch.</div>
+            <div class="tip-box">💡 <div>To force an immediate refresh: delete the formula and retype it, or use <code>File → Settings → Calculation → On change and every minute</code>.</div></div>
+          </div>
+        </div>
+
+        <div class="guide-divider"></div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px">🎨 Step 5 — Style the Dashboard Sheet to Match This UI</div>
+
+        <div class="step">
+          <div class="step-num">18</div>
+          <div class="step-body">
+            <div class="step-title">Create KPI cards using merged cells + borders</div>
+            <div class="step-desc">
+              For each KPI, merge a 3×2 block of cells. Example for "Dynasty %":<br><br>
+              • Merge <code>B3:D3</code> → enter label text, set font to <code>Arial 9</code>, gray color <code>#6A82A0</code><br>
+              • Merge <code>B4:D4</code> → enter formula (e.g. <code>=C4</code>), set font to <code>Arial 24 Bold</code>, white<br>
+              • Add a thick top border in gold (<code>#C9922A</code>) using <code>Format → Borders</code><br>
+              • Set background to dark blue <code>#0F1F38</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">19</div>
+          <div class="step-body">
+            <div class="step-title">Add conditional formatting to highlight dynasty legislators</div>
+            <div class="step-desc">Select the <code>is_dynasty</code> column in the legislators sheet → <code>Format → Conditional formatting</code>:<br><br>
+            • Rule 1: Cell is = <code>TRUE</code> → background <code>#2A1A08</code>, text color <code>#F0C96A</code> (gold)<br>
+            • Rule 2: Apply to the entire row using <code>Custom formula</code>: <code>=$F2=TRUE</code> on the full range <code>A2:J1000</code> → background <code>#2A1A08</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">20</div>
+          <div class="step-body">
+            <div class="step-title">Freeze headers and protect source sheets</div>
+            <div class="step-desc">
+              • Freeze headers: <code>View → Freeze → 1 row</code> on both source sheets<br>
+              • Protect source data: right-click a sheet tab → <code>Protect sheet</code> → only allow editors to modify — this prevents accidental formula breakage<br>
+              • Hide source sheets from casual viewers: right-click tab → <code>Hide sheet</code> — they're still used by formulas
+            </div>
+            <div class="tip-box">💡 <div>Share the finished spreadsheet with view-only access for colleagues: <code>Share → Anyone with the link → Viewer</code>. They'll always see the latest data but can't break formulas.</div></div>
+          </div>
+        </div>
+
+        <div class="guide-divider"></div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:16px">🔗 Step 6 — Connect This HTML Dashboard to Your Google Sheet</div>
+
+        <div class="step">
+          <div class="step-num">21</div>
+          <div class="step-body">
+            <div class="step-title">Publish your Google Sheet as a CSV endpoint</div>
+            <div class="step-desc">In your Google Sheet: <code>File → Share → Publish to web</code> → select the <code>legislators</code> sheet → choose format <code>Comma-separated values (.csv)</code> → click <code>Publish</code>. Copy the URL shown — it looks like:<br><br>
+            <code>https://docs.google.com/spreadsheets/d/SHEET_ID/export?format=csv&gid=SHEET_GID</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">22</div>
+          <div class="step-body">
+            <div class="step-title">Replace the static DB in this HTML file with a live fetch</div>
+            <div class="step-desc">Open this HTML file in a text editor. Find the <code>function init()</code> block. Replace the static <code>DB = {...}</code> assignment with:</div>
+            <div class="formula-box">async function init() {
+  const CSV_URL = "YOUR_PUBLISHED_CSV_URL_HERE";
+  const resp = await fetch(CSV_URL);
+  const text = await resp.text();
+  const rows = text.trim().split("\n").map(r => r.split(","));
+  const headers = rows[0];
+  
+  DB.p = rows.slice(1).map(r => ({
+    fn: r[0], n2: r[1], rg: r[2], di: r[3],
+    cl: r[4], dy: r[5] === "TRUE",
+    sx: r[6], tt: +r[7],
+    tr: r[9] ? r[9].split(";") : []
+  }));
+  
+  // ... rest of your init code
+  buildKPIs(); populateSelects(); doSearch();
+}</div>
+            <div class="step-desc" style="margin-top:8px">Now every time someone opens this HTML file, it fetches the latest data from your Google Sheet automatically — no manual updates needed.</div>
+            <div class="warn-box">⚠️ <div>This requires the HTML file to be served from a web server (not opened as a local file) due to browser CORS rules. Upload it to GitHub Pages, Netlify, or any static host for free.</div></div>
+          </div>
+        </div>
+
+        <div class="guide-divider"></div>
+
+        <div style="background:linear-gradient(135deg,var(--dynasty-bg),var(--navy2));border:1px solid var(--dynasty-border);border-radius:10px;padding:20px 24px">
+          <div style="font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-light);margin-bottom:12px">📋 Quick Reference — All Formulas</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px">
+            <div>
+              <div style="color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-size:10px">Total Legislators</div>
+              <div class="formula-box" style="font-size:11px;padding:8px 12px">=COUNTA(legislators!A2:A)</div>
+            </div>
+            <div>
+              <div style="color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-size:10px">Number of Dynasties</div>
+              <div class="formula-box" style="font-size:11px;padding:8px 12px">=SUMPRODUCT((EXACT(legislators!F2:F,"TRUE"))*(1/COUNTIF(legislators!E2:E,legislators!E2:E)))</div>
+            </div>
+            <div>
+              <div style="color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-size:10px">Dynasty % of Congress</div>
+              <div class="formula-box" style="font-size:11px;padding:8px 12px">=COUNTIF(legislators!F2:F,TRUE)/COUNTA(legislators!A2:A)</div>
+            </div>
+            <div>
+              <div style="color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-size:10px">Largest Dynasty Name</div>
+              <div class="formula-box" style="font-size:11px;padding:8px 12px">=INDEX(legislators!E2:E,MATCH(MAX(COUNTIF(legislators!E2:E,legislators!E2:E)),COUNTIF(legislators!E2:E,legislators!E2:E),0))</div>
+            </div>
+            <div>
+              <div style="color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-size:10px">Major Dynasties (3+)</div>
+              <div class="formula-box" style="font-size:11px;padding:8px 12px">=SUMPRODUCT((COUNTIFS(legislators!E2:E,legislators!E2:E,legislators!F2:F,TRUE)>=3)*(EXACT(legislators!F2:F,"TRUE"))*(1/COUNTIF(legislators!E2:E,legislators!E2:E)))</div>
+            </div>
+            <div>
+              <div style="color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-size:10px">Female in Dynasties</div>
+              <div class="formula-box" style="font-size:11px;padding:8px 12px">=COUNTIFS(legislators!F2:F,TRUE,legislators!G2:G,"F")</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </main>
 
+<!-- DETAIL MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-  <div class="modal">
+  <div class="modal" id="modal">
     <div class="modal-header">
       <div>
         <div class="modal-name" id="modalName"></div>
@@ -298,396 +712,489 @@ tbody td:first-child{color:var(--text);font-weight:500}
 </div>
 
 <script>
-const LEGISLATORS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_mvfBjl6NTQq78FAywFTwD4kndApHnnHu4QEH-FQ2m8pROHKSfofRp9hul4XJoA/pub?output=csv';
-const DISTRICTS_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRXoUfNbQwjfqqLtXWlgBTwFKnx1CC7qD9bDk-dts1ogdawYr8LSFe7YF6T8H9-Yg/pub?gid=1021641418&single=true&output=csv';
+
+const LEGISLATORS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXoUfNbQwjfqqLtXWlgBTwFKnx1CC7qD9bDk-dts1ogdawYr8LSFe7YF6T8H9-Yg/pub?gid=1021641418&single=true&output=csv";
+const DISTRICTS_CSV_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR_mvfBjl6NTQq78FAywFTwD4kndApHnnHu4QEH-FQ2m8pROHKSfofRp9hul4XJoA/pub?output=csv
+";
 
 const DB = { p: [], d: [] };
-let ALL_CONGRESSES = [];
-let ALL_REGIONS    = [];
-let searchResults  = [];
-let currentPage    = 1;
-let cardMode       = 'cards';
-let debounceTimer  = null;
-let currentView    = 'search';
-const PAGE_SIZE    = 24;
 
-function parseCSV(text) {
-  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim().split('\n');
-  return lines.map(line => {
-    const cols = []; let cur = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') { if (inQ && line[i+1]==='"'){cur+='"';i++;} else inQ=!inQ; }
-      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur=''; }
-      else cur += ch;
-    }
-    cols.push(cur.trim()); return cols;
-  });
-}
+const ALL_CONGRESSES=['8th Congress','9th Congress','10th Congress','11th Congress','12th Congress','13th Congress','14th Congress','15th Congress','16th Congress','17th Congress','18th Congress','19th Congress','20th Congress'];
+const ALL_PERIODS=ALL_CONGRESSES;
+let ALL_REGIONS=[];
+const PAGE_SIZE=24;
 
-function findCol(headers, ...candidates) {
-  for (const c of candidates) {
-    const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g,'');
-    const idx = headers.findIndex(h => norm(h).includes(norm(c)));
-    if (idx !== -1) return idx;
-  }
-  return -1;
-}
+let searchResults=[];
+let currentPage=1;
+let cardMode='cards';
+let debounceTimer=null;
+let currentView='search';
 
-async function init() {
+// ─── INIT (live fetch from Google Sheets) ─────────────────
+async function init(){
+  // Show loading state
+  document.getElementById('kpiRow').innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);font-size:14px">⏳ Loading data from Google Sheets…</div>`;
+
   try {
-    const resp = await fetch(LEGISLATORS_URL);
-    if (!resp.ok) throw new Error('HTTP '+resp.status);
-    const text = await resp.text();
-    const rows = parseCSV(text);
-    if (rows.length < 2) throw new Error('Sheet is empty');
-    const raw = rows[0].map(h => h.toLowerCase().trim());
-    console.log('[Dynasty Tracker] Legislators headers:', raw);
+    // ── Load legislators sheet ──
+    const legResp = await fetch(LEGISLATORS_CSV_URL);
+    const legText = await legResp.text();
+    const legRows = legText.trim().split('\n').map(r=>csvRowToArray(r));
+    const h = legRows[0].map(x=>x.trim().toLowerCase().replace(/\s+/g,'_'));
 
-    const iName   = findCol(raw,'full_name','fullname','name','legislator','member','representative','rep_name');
-    const iSort   = findCol(raw,'sort_name','sortname','last_name','lastname','surname');
-    const iRegion = findCol(raw,'region','province','area','reg');
-    const iDist   = findCol(raw,'district','dist');
-    const iClan   = findCol(raw,'clan','family','dynasty_name','dynastyname','political_family','clan_name');
-    const iDyn    = findCol(raw,'is_dynasty','dynasty','isdynasty','political_dynasty','dynasty_member','is_political_dynasty');
-    const iSex    = findCol(raw,'sex','gender');
-    const iTerms  = findCol(raw,'total_terms','totalterms','terms','num_terms','number_of_terms','no_of_terms');
-    const iCong   = findCol(raw,'congresses_served','congresses','congress_served','terms_served','congress');
-    const iNick   = findCol(raw,'nickname','nick','aka','known_as','alias');
-    const iLeader = findCol(raw,'leadership','leader','position','house_position','role');
-    const iSpeaker= findCol(raw,'speaker','is_speaker','isspeaker');
-    const iBirth  = findCol(raw,'birthdate','birth','birthday','dob','date_of_birth');
-
-    console.log('[Dynasty Tracker] Column map → name:'+iName+' region:'+iRegion+' clan:'+iClan+' dynasty:'+iDyn+' sex:'+iSex+' terms:'+iTerms+' congresses:'+iCong);
-
-    if (iName === -1 && iSort === -1) throw new Error('Cannot find name column. Headers: '+raw.join(', '));
-
-    const get = (row, idx) => (idx !== -1 && idx < row.length) ? (row[idx]||'').trim() : '';
-
-    DB.p = rows.slice(1).filter(r => r.some(c=>c.trim())).map(r => {
-      const nameVal = get(r,iName)||get(r,iSort);
-      const sortVal = get(r,iSort)||get(r,iName);
-      const dynRaw  = get(r,iDyn).toUpperCase();
-      const isDyn   = dynRaw==='TRUE'||dynRaw==='YES'||dynRaw==='1'||dynRaw==='Y';
-      const congRaw = get(r,iCong);
-      const congList= congRaw ? congRaw.split(/[;,\n]+/).map(s=>s.trim()).filter(Boolean) : [];
-      const spkRaw  = get(r,iSpeaker).toUpperCase();
-      const isSpeaker = spkRaw==='TRUE'||spkRaw==='YES'||spkRaw==='1';
+    DB.p = legRows.slice(1).map(r=>{
+      const g = k => (r[h.indexOf(k)]||'').trim();
+      const congresses = g('congresses_served').split(';').map(s=>s.trim()).filter(Boolean);
       return {
-        fn:nameVal, n2:sortVal||nameVal, n:sortVal||nameVal,
-        rg:get(r,iRegion), di:get(r,iDist),
-        cl:get(r,iClan)||null, dy:isDyn,
-        sx:get(r,iSex).toUpperCase().charAt(0),
-        tt:parseInt(get(r,iTerms))||(congList.length||0),
-        tr:congList, sp:isSpeaker, ld:get(r,iLeader),
-        bd:get(r,iBirth), ak:get(r,iNick), cm:0, td:[], ty:[]
+        fn: g('full_name'),
+        n2: g('sort_name') || g('full_name'),
+        n:  g('sort_name') || g('full_name'),
+        ak: g('aka') || '',
+        rg: g('region'),
+        di: g('district'),
+        cl: g('clan') || null,
+        dy: g('is_dynasty').toUpperCase()==='TRUE',
+        sx: g('sex').toUpperCase(),
+        tt: parseInt(g('total_terms'))||0,
+        sp: g('is_speaker').toUpperCase()==='TRUE',
+        ld: g('leadership')||'',
+        bd: g('birthdate')||'',
+        tr: congresses,
+        td: [], ty: [], cm: 0
       };
     }).filter(p=>p.fn);
-
-    const cc={};
-    DB.p.forEach(p=>{ if(p.cl) cc[p.cl]=(cc[p.cl]||0)+1; });
-    DB.p.forEach(p=>{ p.cm=p.cl?(cc[p.cl]||0):0; });
-    console.log('[Dynasty Tracker] Loaded '+DB.p.length+' legislators, '+DB.p.filter(p=>p.dy).length+' dynasty members');
-  } catch(e) {
-    console.error('[Dynasty Tracker] Legislators error:', e);
-    showError('Could not load legislator data. Error: '+e.message+'<br>Make sure your sheet is published via File → Share → Publish to web → CSV.');
+  } catch(e){
+    console.error('Could not load legislators:', e);
+    document.getElementById('resultsCount').innerHTML='<span style="color:var(--red)">⚠️ Could not load data. Check your CSV URL is published correctly.</span>';
   }
 
   try {
-    const resp2 = await fetch(DISTRICTS_URL);
-    if (!resp2.ok) throw new Error('HTTP '+resp2.status);
-    const text2 = await resp2.text();
-    const rows2 = parseCSV(text2);
-    if (rows2.length >= 2) {
-      const dH = rows2[0].map(h=>h.trim());
-      console.log('[Dynasty Tracker] Districts headers:', dH);
-      const iRg = findCol(dH.map(h=>h.toLowerCase()),'region','province','area');
-      const iDi = findCol(dH.map(h=>h.toLowerCase()),'district','dist');
-      ALL_CONGRESSES = dH.filter((_,i)=>i!==iRg&&i!==iDi&&dH[i].trim());
-      DB.d = rows2.slice(1).filter(r=>r.some(c=>c.trim())).map(r=>{
-        const rg=iRg!==-1?(r[iRg]||'').trim():'';
-        const di=iDi!==-1?(r[iDi]||'').trim():'';
-        const h={};
-        dH.forEach((col,i)=>{ if(i!==iRg&&i!==iDi&&col.trim()) h[col.trim()]=(r[i]||'').trim(); });
-        return {rg,di,h};
-      }).filter(d=>d.rg||d.di);
-      console.log('[Dynasty Tracker] Loaded '+DB.d.length+' districts, '+ALL_CONGRESSES.length+' congress columns');
-    }
-  } catch(e) {
-    console.warn('[Dynasty Tracker] Districts warning:', e.message);
+    // ── Load districts sheet ──
+    const distResp = await fetch(DISTRICTS_CSV_URL);
+    const distText = await distResp.text();
+    const distRows = distText.trim().split('\n').map(r=>csvRowToArray(r));
+    const dh = distRows[0].map(x=>x.trim());
+
+    DB.d = distRows.slice(1).map(r=>{
+      const h2={};
+      dh.forEach((col,i)=>{ if(col!=='region'&&col!=='district') h2[col]=r[i]||''; });
+      return { rg:(r[dh.indexOf('region')]||'').trim(), di:(r[dh.indexOf('district')]||'').trim(), h:h2 };
+    }).filter(d=>d.rg);
+  } catch(e){
+    console.error('Could not load districts:', e);
   }
 
-  if (ALL_CONGRESSES.length===0) {
-    const allC=new Set();
-    DB.p.forEach(p=>(p.tr||[]).forEach(c=>allC.add(c)));
-    ALL_CONGRESSES=[...allC].sort((a,b)=>{ const na=parseInt(a),nb=parseInt(b); return isNaN(na)||isNaN(nb)?a.localeCompare(b):na-nb; });
-  }
+  // Rebuild derived lists from live data
   ALL_REGIONS=[...new Set(DB.p.map(p=>p.rg).filter(Boolean))].sort();
 
-  document.getElementById('loadingScreen').style.display='none';
   buildKPIs();
   populateSelects();
-  renderDistrictHeader();
   doSearch();
+  renderDistrictHeader();
 }
 
-function showError(msg) {
-  const el=document.getElementById('errorBanner');
-  el.innerHTML='⚠️ '+msg; el.style.display='block';
-}
-
-function buildKPIs() {
-  const p=DB.p;
-  if (!p.length) {
-    document.getElementById('kpiRow').innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:20px">No data loaded. Check that your Google Sheet is published correctly.</div>';
-    return;
+// Helper: parse a CSV row correctly (handles quoted commas)
+function csvRowToArray(row){
+  const result=[]; let cur=''; let inQ=false;
+  for(let i=0;i<row.length;i++){
+    const c=row[i];
+    if(c==='"'){ inQ=!inQ; }
+    else if(c===','&&!inQ){ result.push(cur.replace(/^"|"$/g,'').trim()); cur=''; }
+    else { cur+=c; }
   }
-  const total=p.length;
-  const dynM=p.filter(x=>x.dy).length;
-  const dynPct=total>0?(dynM/total*100).toFixed(1):0;
-  const fc={};
-  p.filter(x=>x.dy&&x.cl).forEach(x=>{fc[x.cl]=(fc[x.cl]||0)+1;});
-  const sorted=Object.entries(fc).sort((a,b)=>b[1]-a[1]);
-  const largest=sorted[0];
-  const numFam=[...new Set(p.filter(x=>x.dy&&x.cl).map(x=>x.cl))].length;
-  const majorFam=Object.values(fc).filter(c=>c>=3).length;
-  const femaleDyn=p.filter(x=>x.dy&&x.sx==='F').length;
-  const femPct=dynM>0?(femaleDyn/dynM*100).toFixed(0):0;
-  const speakers=p.filter(x=>x.dy&&x.sp).length;
+  result.push(cur.replace(/^"|"$/g,'').trim());
+  return result;
+}
+
+// ─── KPI BUILDER (dynasty-focused) ───────────────────────────────────────────
+function buildKPIs(){
+  const p=DB.p;
+  const totalLegislators=p.length;
+  const dynastyMembers=p.filter(x=>x.dy).length;
+  const dynastyPct=(dynastyMembers/totalLegislators*100).toFixed(1);
+
+  // Count unique dynasty families
+  const dynastyFamilies=[...new Set(p.filter(x=>x.dy&&x.cl).map(x=>x.cl))];
+  const numDynasties=dynastyFamilies.length;
+
+  // Major dynasties (3+ members)
+  const familyCounts={};
+  p.filter(x=>x.dy&&x.cl).forEach(x=>{familyCounts[x.cl]=(familyCounts[x.cl]||0)+1});
+  const majorDynasties=Object.values(familyCounts).filter(c=>c>=3).length;
+  const largestFamily=Object.entries(familyCounts).sort((a,b)=>b[1]-a[1])[0];
+
+  // Female in dynasties
+  const femaleDynasty=p.filter(x=>x.dy&&x.sx==='F').length;
+  const femalePct=dynastyMembers>0?(femaleDynasty/dynastyMembers*100).toFixed(0):0;
+
+  // Speakers from dynasties
+  const dynastySpeakers=p.filter(x=>x.dy&&x.sp).length;
+
   const kpis=[
-    {label:'Dynasty Members',val:dynM,sub:'out of '+total+' total legislators',icon:'👑',accent:'var(--gold)',trend:dynPct+'% of all congress',cls:'up'},
-    {label:'% Dynasty-Held Seats',val:dynPct+'%',sub:'of all legislative seats',icon:'📊',accent:'var(--red)',trend:'Historically persistent',cls:'neutral'},
-    {label:'Dynasty Families',val:numFam,sub:'unique political clans',icon:'🏰',accent:'var(--purple)',trend:majorFam+' with 3+ members',cls:'neutral'},
-    {label:'Largest Dynasty',val:largest?largest[1]:'—',sub:largest?largest[0]+' family':'No data',icon:'⚜️',accent:'var(--gold-light)',trend:'Members in congress',cls:'up'},
-    {label:'Women in Dynasties',val:femaleDyn,sub:femPct+'% of dynasty members',icon:'♀',accent:'#C97EE0',trend:speakers+' Speaker(s) from dynasties',cls:'neutral'},
+    {label:'Dynasty Members',val:dynastyMembers,sub:`out of ${totalLegislators} total legislators`,icon:'👑',accent:'var(--gold)',trend:`${dynastyPct}% of all congress`,trendCls:'up'},
+    {label:'% Dynasty-Held Seats',val:dynastyPct+'%',sub:'of all legislative seats',icon:'📊',accent:'var(--red)',trend:'Historically persistent',trendCls:'neutral'},
+    {label:'Political Dynasty Families',val:numDynasties,sub:'unique political clans',icon:'🏰',accent:'var(--purple)',trend:`${majorDynasties} with 3+ members`,trendCls:'neutral'},
+    {label:'Largest Dynasty',val:largestFamily?largestFamily[1]:'—',sub:largestFamily?largestFamily[0]+' family':'',icon:'⚜️',accent:'var(--gold-light)',trend:'Members in congress',trendCls:'up'},
+    {label:'Women in Dynasties',val:femaleDynasty,sub:`${femalePct}% of dynasty members`,icon:'♀',accent:'#C97EE0',trend:`${dynastySpeakers} Speaker(s) from dynasties`,trendCls:'neutral'},
   ];
+
   document.getElementById('kpiRow').innerHTML=kpis.map(k=>`
     <div class="kpi-card" style="--accent-bar:${k.accent}">
       <div class="kpi-icon">${k.icon}</div>
       <div class="kpi-label">${k.label}</div>
       <div class="kpi-value">${k.val}</div>
       <div class="kpi-sub">${k.sub}</div>
-      <div class="kpi-trend ${k.cls}">${k.trend}</div>
-    </div>`).join('');
+      <div class="kpi-trend ${k.trendCls}">${k.trend}</div>
+    </div>
+  `).join('');
 }
 
-function populateSelects() {
+// ─── POPULATES ────────────────────────────────────────────────────────────────
+function populateSelects(){
   ['congressSelect','dCongressSelect','cCongressSelect'].forEach(id=>{
-    const sel=document.getElementById(id); if(!sel) return;
+    const sel=document.getElementById(id);
+    if(!sel) return;
     const def=sel.options[0].outerHTML;
-    sel.innerHTML=def+ALL_CONGRESSES.map(c=>`<option value="${c}">${c}</option>`).join('');
+    sel.innerHTML=def+ALL_PERIODS.map(p=>`<option value="${p}">${p}</option>`).join('');
   });
   ['dRegionSelect','cRegionSelect'].forEach(id=>{
-    const sel=document.getElementById(id); if(!sel) return;
+    const sel=document.getElementById(id);
+    if(!sel) return;
     const def=sel.options[0].outerHTML;
     sel.innerHTML=def+ALL_REGIONS.map(r=>`<option value="${r}">${r}</option>`).join('');
   });
 }
 
-function debounceSearch(){ clearTimeout(debounceTimer); debounceTimer=setTimeout(doSearch,250); }
+// ─── SEARCH ───────────────────────────────────────────────────────────────────
+function debounceSearch(){
+  clearTimeout(debounceTimer);
+  debounceTimer=setTimeout(doSearch,250);
+}
 
-function doSearch() {
+function doSearch(){
   const q=(document.getElementById('nameInput').value||'').toLowerCase().trim();
   const dq=(document.getElementById('districtInput').value||'').toLowerCase().trim();
   const cong=document.getElementById('congressSelect').value;
   const filt=document.getElementById('filterSelect').value;
+
   searchResults=DB.p.filter(p=>{
-    if(q){ const hay=[p.fn,p.n2,p.n,p.ak,p.cl].map(s=>(s||'').toLowerCase()).join(' '); if(!hay.includes(q)) return false; }
-    if(dq){ const dd=[(p.di||''),(p.rg||'')].map(s=>s.toLowerCase()).join(' '); if(!dd.includes(dq)) return false; }
-    if(cong&&!(p.tr||[]).includes(cong)) return false;
+    if(q){
+      const hay=[p.n,p.n2,p.fn,p.ak].map(s=>(s||'').toLowerCase()).join(' ');
+      if(!hay.includes(q)) return false;
+    }
+    if(dq){
+      const dd=[(p.di||''),(p.rg||''),...(p.td||[])].map(s=>s.toLowerCase()).join(' ');
+      if(!dd.includes(dq)) return false;
+    }
+    if(cong) if(!(p.tr||[]).includes(cong)) return false;
     if(filt==='dynasty'&&!p.dy) return false;
     if(filt==='female'&&p.sx!=='F') return false;
     if(filt==='male'&&p.sx!=='M') return false;
     if(filt==='multiterm'&&(p.tt||0)<3) return false;
     return true;
   });
-  currentPage=1; renderResults();
+
+  currentPage=1;
+  renderResults();
 }
 
-function clearSearch() {
+function clearSearch(){
   ['nameInput','districtInput'].forEach(id=>document.getElementById(id).value='');
   ['congressSelect','filterSelect'].forEach(id=>document.getElementById(id).value='');
   doSearch();
 }
 
-function renderResults() {
+// ─── RENDER RESULTS ───────────────────────────────────────────────────────────
+function renderResults(){
   const total=searchResults.length;
-  const shown=Math.min(PAGE_SIZE*currentPage,total);
-  document.getElementById('resultsCount').innerHTML=`Showing <span>${shown.toLocaleString()}</span> of <span>${total.toLocaleString()}</span> legislators`;
+  document.getElementById('resultsCount').innerHTML=`Showing <span>${Math.min(PAGE_SIZE,total).toLocaleString()}</span> of <span>${total.toLocaleString()}</span> legislators`;
   const start=(currentPage-1)*PAGE_SIZE;
   const page=searchResults.slice(start,start+PAGE_SIZE);
-  if(cardMode==='cards') renderCards(page); else renderTable(page);
+  if(cardMode==='cards') renderCards(page);
+  else renderTable(page);
   renderPagination(total);
 }
 
-function renderCards(items) {
+function renderCards(items){
   document.getElementById('cardsView').style.display='';
   document.getElementById('tableView').style.display='none';
-  if(!items.length){ document.getElementById('cardsView').innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No legislators match your search.</div></div>'; return; }
-  document.getElementById('cardsView').innerHTML='<div class="person-grid fade-in">'+items.map(p=>personCard(p)).join('')+'</div>';
+  if(!items.length){
+    document.getElementById('cardsView').innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No legislators found.</div></div>`;
+    return;
+  }
+  document.getElementById('cardsView').innerHTML=`<div class="person-grid fade-in">${items.map(p=>personCard(p)).join('')}</div>`;
 }
 
-function personCard(p) {
+function personCard(p){
   const tags=[];
-  if(p.rg) tags.push('<span class="tag tag-region">'+p.rg+'</span>');
-  if(p.dy) tags.push('<span class="tag tag-dynasty">👑 Dynasty</span>');
-  if(p.sx==='F') tags.push('<span class="tag tag-female">♀ Female</span>');
-  if(p.sp) tags.push('<span class="tag tag-speaker">🏛 Speaker</span>');
-  const first=p.tr&&p.tr.length?p.tr[0]:'—';
-  const last=p.tr&&p.tr.length?p.tr[p.tr.length-1]:'—';
-  const eid=encodeURIComponent(p.n2||p.fn);
-  return '<div class="person-card '+(p.dy?'dynasty':'')+'" onclick="openModal(\''+eid+'\')">'+
-    '<div class="pc-name">'+(p.fn||p.n2||'Unknown')+'</div>'+
-    '<div class="pc-name2">'+(p.n2||'')+'</div>'+
-    '<div class="pc-tags">'+tags.join('')+'</div>'+
-    (p.cl?'<div style="font-size:12px;color:var(--gold-dim);margin-bottom:8px">🏰 '+p.cl+'</div>':'')+
-    '<div class="pc-stats">'+
-      '<div class="pc-stat"><div class="pc-stat-val">'+(p.tt||0)+'</div><div class="pc-stat-lbl">Terms</div></div>'+
-      '<div class="pc-stat" style="text-align:left;flex:1;padding-left:16px">'+
-        '<div style="font-size:11px;color:var(--text3)">First: '+first+'</div>'+
-        '<div style="font-size:11px;color:var(--text3)">Last: '+last+'</div>'+
-      '</div></div></div>';
+  if(p.rg) tags.push(`<span class="tag tag-region">${p.rg}</span>`);
+  if(p.dy) tags.push(`<span class="tag tag-dynasty">👑 Dynasty</span>`);
+  if(p.sx==='F') tags.push(`<span class="tag tag-female">♀ Female</span>`);
+  if(p.sp) tags.push(`<span class="tag tag-speaker">🏛 Speaker</span>`);
+  const lastTerm=p.tr&&p.tr.length?p.tr[p.tr.length-1]:'—';
+  const firstTerm=p.tr&&p.tr.length?p.tr[0]:'—';
+  return `<div class="person-card ${p.dy?'dynasty':''}" onclick="openModal('${encodeURI(p.n2)}')">
+    <div class="pc-name">${p.fn||p.n2||'Unknown'}</div>
+    <div class="pc-name2">${p.n2||''}</div>
+    <div class="pc-tags">${tags.join('')}</div>
+    ${p.cl?`<div style="font-size:12px;color:var(--gold-dim);margin-bottom:8px">🏰 ${p.cl}</div>`:''}
+    <div class="pc-stats">
+      <div class="pc-stat"><div class="pc-stat-val">${p.tt||0}</div><div class="pc-stat-lbl">Terms</div></div>
+      <div class="pc-stat" style="text-align:left;flex:1;padding-left:16px">
+        <div style="font-size:11px;color:var(--text3)">First: ${firstTerm}</div>
+        <div style="font-size:11px;color:var(--text3)">Last: ${lastTerm}</div>
+      </div>
+    </div>
+  </div>`;
 }
 
-function renderTable(items) {
+function renderTable(items){
   document.getElementById('cardsView').style.display='none';
   document.getElementById('tableView').style.display='';
-  if(!items.length){ document.getElementById('tableView').innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No results found.</div></div>'; return; }
-  const rows=items.map(p=>'<tr onclick="openModal(\''+encodeURIComponent(p.n2||p.fn)+'\')"><td>'+(p.fn||p.n2)+'</td><td style="font-family:\'DM Mono\',monospace;font-size:12px">'+(p.n2||'—')+'</td><td>'+(p.rg||'—')+'</td><td>'+(p.di||'—')+'</td><td class="'+(p.dy?'dynasty-cell':'')+'">'+(p.cl||'—')+'</td><td style="text-align:center">'+(p.tt||0)+'</td><td>'+(p.sx==='F'?'Female':p.sx==='M'?'Male':'—')+'</td><td>'+(p.tr&&p.tr.length?p.tr[p.tr.length-1]:'—')+'</td></tr>').join('');
-  document.getElementById('tableView').innerHTML='<div class="district-table-wrap"><table><thead><tr><th>Full Name</th><th>Sort Name</th><th>Region</th><th>District</th><th>Clan / Dynasty</th><th>Terms</th><th>Sex</th><th>Last Congress</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  if(!items.length){
+    document.getElementById('tableView').innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No results found.</div></div>`;
+    return;
+  }
+  const rows=items.map(p=>`
+    <tr onclick="openModal('${encodeURI(p.n2)}')">
+      <td>${p.fn||p.n2}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${p.n2}</td>
+      <td>${p.rg||'—'}</td>
+      <td>${p.di||'—'}</td>
+      <td class="${p.dy?'dynasty-cell':''}">${p.cl||'—'}</td>
+      <td style="text-align:center">${p.tt||0}</td>
+      <td>${p.sx==='F'?'Female':p.sx==='M'?'Male':'—'}</td>
+      <td>${p.tr&&p.tr.length?p.tr[p.tr.length-1]:'—'}</td>
+    </tr>`).join('');
+  document.getElementById('tableView').innerHTML=`
+    <div class="district-table-wrap">
+      <table>
+        <thead><tr>
+          <th>Full Name</th><th>Sort Name</th><th>Region</th><th>District</th>
+          <th>Clan / Dynasty</th><th>Terms</th><th>Sex</th><th>Last Congress</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
 }
 
-function renderPagination(total) {
+function renderPagination(total){
   const pages=Math.ceil(total/PAGE_SIZE);
-  if(pages<=1){ document.getElementById('pagination').innerHTML=''; return; }
-  let btns='<button class="page-btn" onclick="goPage('+(currentPage-1)+')" '+(currentPage===1?'disabled':'')+'>‹</button>';
-  pageRange(currentPage,pages).forEach(p=>{ if(p==='…') btns+='<span style="padding:6px 4px;color:var(--text3)">…</span>'; else btns+='<button class="page-btn '+(p===currentPage?'active':'')+'" onclick="goPage('+p+')">'+p+'</button>'; });
-  btns+='<button class="page-btn" onclick="goPage('+(currentPage+1)+')" '+(currentPage===pages?'disabled':'')+'>›</button>';
+  if(pages<=1){document.getElementById('pagination').innerHTML='';return;}
+  let btns=`<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+  const range=pageRange(currentPage,pages);
+  range.forEach(p=>{
+    if(p==='…') btns+=`<span style="padding:6px 4px;color:var(--text3)">…</span>`;
+    else btns+=`<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+  });
+  btns+=`<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>`;
   document.getElementById('pagination').innerHTML=btns;
 }
 
-function pageRange(cur,total) {
+function pageRange(cur,total){
   if(total<=7) return Array.from({length:total},(_,i)=>i+1);
   if(cur<=4) return [1,2,3,4,5,'…',total];
   if(cur>=total-3) return [1,'…',total-4,total-3,total-2,total-1,total];
   return [1,'…',cur-1,cur,cur+1,'…',total];
 }
 
-function goPage(p) {
+function goPage(p){
   const pages=Math.ceil(searchResults.length/PAGE_SIZE);
   if(p<1||p>pages) return;
-  currentPage=p; renderResults();
+  currentPage=p;
+  renderResults();
   window.scrollTo({top:180,behavior:'smooth'});
 }
 
-function setCardView(mode,btn) {
+function setCardView(mode,btn){
   cardMode=mode;
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active'); renderResults();
+  btn.classList.add('active');
+  renderResults();
 }
 
-function openModal(encodedName) {
-  const name=decodeURIComponent(encodedName);
-  const p=DB.p.find(x=>x.n2===name||x.fn===name||x.n===name);
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function openModal(encodedName){
+  const name=decodeURI(encodedName);
+  const p=DB.p.find(x=>x.n2===name||x.n===name||x.fn===name);
   if(!p) return;
   document.getElementById('modalName').textContent=p.fn||p.n2||p.n;
-  document.getElementById('modalName2').textContent=(p.n2||'')+(p.ak?' · AKA: '+p.ak:'');
-  const info=[
+  document.getElementById('modalName2').textContent=p.n2+(p.ak?' · AKA: '+p.ak:'');
+  const infoItems=[
     {lbl:'Sex',val:p.sx==='F'?'Female':p.sx==='M'?'Male':'Unknown'},
     {lbl:'Birthdate',val:p.bd||'—'},
     {lbl:'Region / Province',val:p.rg||'—'},
     {lbl:'District',val:p.di||'—'},
     {lbl:'Dynasty / Clan',val:p.cl||'None',cls:p.dy?'dynasty':''},
     {lbl:'Clan Members',val:p.cm>=2?p.cm+' members in Congress':'—'},
-    {lbl:'Total Terms',val:p.tt||0},
+    {lbl:'Total Terms Served',val:p.tt||0},
     {lbl:'House Leadership',val:p.ld||'—'},
   ];
-  const infoHtml='<div class="info-grid">'+info.map(i=>'<div class="info-item"><div class="info-lbl">'+i.lbl+'</div><div class="info-val '+(i.cls||'')+'">'+i.val+'</div></div>').join('')+'</div>';
-  let tlHtml='';
-  if(p.tr&&p.tr.length){ tlHtml='<div class="section-head">📅 Congress Timeline</div><div class="timeline">'+p.tr.map(period=>'<div class="tl-item"><div class="tl-dot"></div><div><div class="tl-period">'+period+'</div></div></div>').join('')+'</div>'; }
+  const infoHtml=`<div class="info-grid">${infoItems.map(i=>`
+    <div class="info-item"><div class="info-lbl">${i.lbl}</div><div class="info-val ${i.cls||''}">${i.val}</div></div>`).join('')}</div>`;
+  let timelineHtml='';
+  if(p.tr&&p.tr.length){
+    timelineHtml=`<div class="section-head">📅 Congress Timeline</div>
+    <div class="timeline">${p.tr.map((period,i)=>`
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div>
+          <div class="tl-period">${period}</div>
+          <div class="tl-detail">${p.td&&p.td[i]?p.td[i]+' District':''}</div>
+          <div class="tl-years">${p.ty&&p.ty[i]?p.ty[i]:''}</div>
+        </div>
+      </div>`).join('')}</div>`;
+  }
   let clanHtml='';
   if(p.cl&&p.dy){
-    const mates=DB.p.filter(x=>x.cl===p.cl&&x.n2!==p.n2).slice(0,10);
-    if(mates.length){ clanHtml='<div class="section-divider"></div><div class="section-head">👑 Dynasty Members — '+p.cl+'</div><div style="display:flex;flex-direction:column;gap:8px">'+mates.map(m=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--dynasty-bg);border:1px solid var(--dynasty-border);border-radius:8px;cursor:pointer" onclick="openModal(\''+encodeURIComponent(m.n2||m.fn)+'\')"><div><div style="font-size:14px;color:var(--text)">'+(m.fn||m.n2)+'</div><div style="font-size:12px;color:var(--text3)">'+(m.rg||'')+' · '+m.tt+' terms</div></div><span style="font-size:18px">›</span></div>').join('')+'</div>'; }
+    const clanMates=DB.p.filter(x=>x.cl===p.cl&&x.n2!==p.n2).slice(0,10);
+    if(clanMates.length){
+      clanHtml=`<div class="section-divider"></div>
+      <div class="section-head">👑 Dynasty Members — ${p.cl}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${clanMates.map(m=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--dynasty-bg);border:1px solid var(--dynasty-border);border-radius:8px;cursor:pointer" onclick="openModal('${encodeURI(m.n2)}')">
+            <div>
+              <div style="font-size:14px;color:var(--text)">${m.fn||m.n2}</div>
+              <div style="font-size:12px;color:var(--text3)">${m.rg||''} · ${m.tt} terms</div>
+            </div>
+            <span style="font-size:18px">›</span>
+          </div>`).join('')}
+      </div>`;
+    }
   }
-  document.getElementById('modalBody').innerHTML=infoHtml+tlHtml+clanHtml;
+  document.getElementById('modalBody').innerHTML=infoHtml+timelineHtml+clanHtml;
   document.getElementById('modalOverlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
 
-function closeModal(e) {
+function closeModal(e){
   if(e&&e.target!==document.getElementById('modalOverlay')) return;
   document.getElementById('modalOverlay').classList.remove('open');
   document.body.style.overflow='';
 }
 
-function renderDistrictHeader() {
-  document.getElementById('districtThead').innerHTML='<tr><th style="min-width:150px">Region</th><th style="min-width:180px">District</th>'+ALL_CONGRESSES.map(c=>'<th style="min-width:110px">'+c+'</th>').join('')+'</tr>';
+// ─── DISTRICTS VIEW ───────────────────────────────────────────────────────────
+function renderDistrictHeader(){
+  document.getElementById('districtThead').innerHTML=`<tr>
+    <th style="min-width:160px">Region</th>
+    <th style="min-width:180px">District</th>
+    ${ALL_CONGRESSES.map(c=>`<th style="min-width:100px">${c}</th>`).join('')}
+  </tr>`;
 }
 
-function renderDistricts() {
+function renderDistricts(){
   const q=(document.getElementById('dSearchInput').value||'').toLowerCase();
   const reg=document.getElementById('dRegionSelect').value;
   const cong=document.getElementById('dCongressSelect').value;
-  const dynastyClans=new Set(DB.p.filter(p=>p.dy&&p.cl).map(p=>p.cl.split(/\s+/)[0].toLowerCase()));
   let filtered=DB.d.filter(d=>{
     if(reg&&d.rg!==reg) return false;
-    if(q&&!(d.rg||'').toLowerCase().includes(q)&&!(d.di||'').toLowerCase().includes(q)) return false;
-    if(cong&&!d.h[cong]) return false;
+    if(q){ if(!(d.rg||'').toLowerCase().includes(q)&&!(d.di||'').toLowerCase().includes(q)) return false; }
+    if(cong){ const val=d.h[cong]; if(!val) return false; }
     return true;
   });
-  let curReg='',rows='';
+  let curRegion='',rows='';
   filtered.forEach(d=>{
-    if(d.rg!==curReg){ curReg=d.rg; rows+='<tr class="region-row"><td colspan="'+(2+ALL_CONGRESSES.length)+'">'+d.rg+'</td></tr>'; }
-    const cells=ALL_CONGRESSES.map(c=>{ const rep=d.h[c]||''; const isDyn=rep&&[...dynastyClans].some(cl=>rep.toLowerCase().includes(cl)); return '<td title="'+rep+'" '+(isDyn?'style="color:var(--gold);font-weight:600"':'')+'>'+(rep||'—')+'</td>'; }).join('');
-    rows+='<tr><td>'+d.rg+'</td><td style="font-weight:500">'+d.di+'</td>'+cells+'</tr>';
+    if(d.rg!==curRegion){
+      curRegion=d.rg;
+      rows+=`<tr class="region-row"><td colspan="${2+ALL_CONGRESSES.length}">${d.rg}</td></tr>`;
+    }
+    const cells=ALL_CONGRESSES.map(c=>{
+      const rep=d.h[c]||'';
+      const isDynasty=rep&&(rep.includes('Marcos')||rep.includes('Aquino')||rep.includes('Romualdez')||rep.includes('Abad')||rep.includes('Binay')||rep.includes('Cayetano')||rep.includes('Belmonte')||rep.includes('Ejercito')||rep.includes('Estrada')||rep.includes('Durano')||rep.includes('Nograles'));
+      return `<td title="${rep}" ${isDynasty?'style="color:var(--gold);font-weight:600"':''}>${rep||'—'}</td>`;
+    }).join('');
+    rows+=`<tr><td>${d.rg}</td><td style="font-weight:500">${d.di}</td>${cells}</tr>`;
   });
-  document.getElementById('districtTbody').innerHTML=rows||'<tr><td colspan="'+(2+ALL_CONGRESSES.length)+'" style="text-align:center;padding:40px;color:var(--text3)">No districts match your filter.</td></tr>';
+  document.getElementById('districtTbody').innerHTML=rows||`<tr><td colspan="15" style="text-align:center;padding:40px;color:var(--text3)">No districts match your filter.</td></tr>`;
 }
 
-function renderDynasties() {
+// ─── DYNASTIES VIEW ───────────────────────────────────────────────────────────
+function renderDynasties(){
   const q=(document.getElementById('clanSearchInput').value||'').toLowerCase();
   const min=parseInt(document.getElementById('clanMinSelect').value)||2;
   const clanMap={};
-  DB.p.forEach(p=>{ if(!p.cl||!p.dy) return; if(!clanMap[p.cl]) clanMap[p.cl]={name:p.cl,members:[],count:0}; clanMap[p.cl].members.push(p); clanMap[p.cl].count++; });
+  DB.p.forEach(p=>{
+    if(!p.cl||!p.dy) return;
+    if(!clanMap[p.cl]) clanMap[p.cl]={name:p.cl,members:[],count:0};
+    clanMap[p.cl].members.push(p);
+    clanMap[p.cl].count++;
+  });
   let clans=Object.values(clanMap).filter(c=>c.count>=min);
   if(q) clans=clans.filter(c=>c.name.toLowerCase().includes(q));
   clans.sort((a,b)=>b.count-a.count);
-  if(!clans.length){ document.getElementById('dynastyContent').innerHTML='<div class="empty"><div class="empty-icon">👑</div><div class="empty-text">No dynasties found.</div></div>'; return; }
-  document.getElementById('dynastyContent').innerHTML=clans.map(c=>{
-    const members=c.members.slice(0,8).map(m=>'<div onclick="openModal(\''+encodeURIComponent(m.n2||m.fn)+'\')" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--navy2);border-radius:6px;cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'var(--surface3)\'" onmouseout="this.style.background=\'var(--navy2)\'"><div><div style="font-size:13px;font-weight:500;color:var(--text)">'+(m.fn||m.n2)+'</div><div style="font-size:11px;color:var(--text3)">'+(m.rg||'')+' · '+m.tt+' term'+(m.tt!==1?'s':'')+'</div></div><span style="color:var(--text3)">›</span></div>').join('');
-    const extra=c.count>8?'<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px">+'+(c.count-8)+' more members</div>':'';
-    return '<div style="background:var(--dynasty-bg);border:1px solid var(--dynasty-border);border-radius:12px;padding:20px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div style="font-family:\'Playfair Display\',serif;font-size:18px;color:var(--gold-light)">'+c.name+'</div><div style="font-size:12px;color:var(--text3);margin-top:2px">'+c.count+' members in Congress</div></div><div style="font-family:\'DM Mono\',monospace;font-size:36px;color:var(--gold);opacity:.6">'+c.count+'</div></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">'+members+extra+'</div></div>';
+  if(!clans.length){
+    document.getElementById('dynastyContent').innerHTML=`<div class="empty"><div class="empty-icon">👑</div><div class="empty-text">No dynasties found.</div></div>`;
+    return;
+  }
+  const html=clans.map(c=>{
+    const members=c.members.slice(0,8).map(m=>`
+      <div onclick="openModal('${encodeURI(m.n2)}')" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--navy2);border-radius:6px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='var(--navy2)'">
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text)">${m.fn||m.n2}</div>
+          <div style="font-size:11px;color:var(--text3)">${m.rg||''} · ${m.tt} term${m.tt!==1?'s':''}</div>
+        </div>
+        <span style="color:var(--text3)">›</span>
+      </div>`).join('');
+    const extra=c.count>8?`<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px">+${c.count-8} more members</div>`:'';
+    return `
+      <div style="background:var(--dynasty-bg);border:1px solid var(--dynasty-border);border-radius:12px;padding:20px;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--gold-light)">${c.name}</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px">${c.count} members in Congress</div>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:36px;color:var(--gold);opacity:.6">${c.count}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">
+          ${members}${extra}
+        </div>
+      </div>`;
   }).join('');
+  document.getElementById('dynastyContent').innerHTML=html;
 }
 
-function renderCongressView() {
+// ─── CONGRESS VIEW ────────────────────────────────────────────────────────────
+function renderCongressView(){
   const cong=document.getElementById('cCongressSelect').value;
   const reg=document.getElementById('cRegionSelect').value;
   const sex=document.getElementById('cSexSelect').value;
-  if(!cong){ document.getElementById('congressContent').innerHTML='<div class="empty"><div class="empty-icon">📜</div><div class="empty-text">Select a Congress period above.</div></div>'; return; }
-  let members=DB.p.filter(p=>{ if(!(p.tr||[]).includes(cong)) return false; if(reg&&p.rg!==reg) return false; if(sex&&p.sx!==sex) return false; return true; });
-  const dynC=members.filter(p=>p.dy).length;
-  const femC=members.filter(p=>p.sx==='F').length;
-  const dynF=[...new Set(members.filter(p=>p.dy&&p.cl).map(p=>p.cl))].length;
-  const uReg=[...new Set(members.map(p=>p.rg).filter(Boolean))].length;
-  const pct=n=>members.length>0?(n/members.length*100).toFixed(1)+'%':'0%';
-  document.getElementById('congressContent').innerHTML=
-    '<div class="kpi-row" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px">'+
-    '<div class="kpi-card" style="--accent-bar:var(--blue)"><div class="kpi-label">Members</div><div class="kpi-value">'+members.length+'</div><div class="kpi-sub">in '+cong+'</div></div>'+
-    '<div class="kpi-card" style="--accent-bar:var(--gold)"><div class="kpi-label">Dynasty Members</div><div class="kpi-value">'+dynC+'</div><div class="kpi-sub">'+pct(dynC)+' of congress</div></div>'+
-    '<div class="kpi-card" style="--accent-bar:var(--purple)"><div class="kpi-label">Dynasty Families</div><div class="kpi-value">'+dynF+'</div><div class="kpi-sub">unique clans</div></div>'+
-    '<div class="kpi-card" style="--accent-bar:#C97EE0"><div class="kpi-label">Female Legislators</div><div class="kpi-value">'+femC+'</div><div class="kpi-sub">'+pct(femC)+' of congress</div></div>'+
-    '<div class="kpi-card" style="--accent-bar:var(--green)"><div class="kpi-label">Unique Regions</div><div class="kpi-value">'+uReg+'</div><div class="kpi-sub">regions represented</div></div>'+
-    '</div><div class="person-grid fade-in">'+members.map(p=>personCard(p)).join('')+'</div>';
+  if(!cong){
+    document.getElementById('congressContent').innerHTML=`<div class="empty"><div class="empty-icon">📜</div><div class="empty-text">Select a Congress period above to see all legislators who served during that session.</div></div>`;
+    return;
+  }
+  let members=DB.p.filter(p=>{
+    if(!(p.tr||[]).includes(cong)) return false;
+    if(reg&&p.rg!==reg) return false;
+    if(sex&&p.sx!==sex) return false;
+    return true;
+  });
+  const dynastyCount=members.filter(p=>p.dy).length;
+  const femaleCount=members.filter(p=>p.sx==='F').length;
+  const dynastyFamilies=[...new Set(members.filter(p=>p.dy&&p.cl).map(p=>p.cl))].length;
+  const statsHtml=`
+    <div class="kpi-row" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px">
+      <div class="kpi-card" style="--accent-bar:var(--blue)"><div class="kpi-label">Members</div><div class="kpi-value">${members.length}</div><div class="kpi-sub">in ${cong}</div></div>
+      <div class="kpi-card" style="--accent-bar:var(--gold)"><div class="kpi-label">Dynasty Members</div><div class="kpi-value">${dynastyCount}</div><div class="kpi-sub">${members.length>0?(dynastyCount/members.length*100).toFixed(1):0}% of congress</div></div>
+      <div class="kpi-card" style="--accent-bar:var(--purple)"><div class="kpi-label">Dynasty Families</div><div class="kpi-value">${dynastyFamilies}</div><div class="kpi-sub">unique political clans</div></div>
+      <div class="kpi-card" style="--accent-bar:#C97EE0"><div class="kpi-label">Female Legislators</div><div class="kpi-value">${femaleCount}</div><div class="kpi-sub">${members.length>0?(femaleCount/members.length*100).toFixed(1):0}% of congress</div></div>
+      <div class="kpi-card" style="--accent-bar:var(--green)"><div class="kpi-label">Unique Regions</div><div class="kpi-value">${[...new Set(members.map(p=>p.rg).filter(Boolean))].length}</div><div class="kpi-sub">regions represented</div></div>
+    </div>`;
+  const cards=`<div class="person-grid fade-in">${members.map(p=>personCard(p)).join('')}</div>`;
+  document.getElementById('congressContent').innerHTML=statsHtml+cards;
 }
 
-function showView(view) {
+// ─── NAV ──────────────────────────────────────────────────────────────────────
+function showView(view){
   currentView=view;
-  ['search','districts','dynasties','congress'].forEach(v=>{ document.getElementById('view-'+v).style.display=v===view?'':'none'; });
-  document.querySelectorAll('.nav-btn').forEach((b,i)=>{ b.classList.toggle('active',['search','districts','dynasties','congress'][i]===view); });
+  ['search','districts','dynasties','congress','guide'].forEach(v=>{
+    document.getElementById('view-'+v).style.display=v===view?'':'none';
+  });
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['search','districts','dynasties','congress','guide'][i]===view);
+  });
   if(view==='dynasties') renderDynasties();
-  if(view==='districts'){ renderDistrictHeader(); renderDistricts(); }
+  if(view==='districts') renderDistricts();
   if(view==='congress') renderCongressView();
 }
 
