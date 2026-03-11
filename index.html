@@ -429,6 +429,49 @@ function mergeDistricts(rawRows) {
   );
 }
 
+// ─── CLAN SEEDS ──────────────────────────────────────────────────────────
+// Directly assigns a clan to any person whose fn contains the key fragment.
+// This is the authoritative source when the roster CLAN column is empty.
+// Applied BEFORE surname inference so the whole chain seeds correctly.
+const CLAN_SEEDS = [
+  // NCR
+  ['Zamora, Ronaldo',    'Zamora (NCR)'],
+  ['Zamora, Ysabel',     'Zamora (NCR)'],
+  ['Zamora, Maria Carmen', 'Zamora (Davao de Oro)'],
+  ['Zamora, Manuel',     'Zamora (Davao de Oro)'],
+  ['Zamora-Apsay',       'Zamora (Davao de Oro)'],
+  ['Cayetano, Alan',     'Cayetano (Taguig)'],
+  ['Cayetano, Pia',      'Cayetano (Taguig)'],
+  ['Cayetano, Laarni',   'Cayetano (Taguig)'],
+  ['Belmonte, Fernando', 'Belmonte (QC)'],
+  ['Belmonte, Jose',     'Belmonte (QC)'],
+  ['Gatchalian, Weslie', 'Gatchalian (Valenzuela)'],
+  ['Gatchalian, Sherwin','Gatchalian (Valenzuela)'],
+  ['Gatchalian, Rexlon', 'Gatchalian (Valenzuela)'],
+  ['Gatchalian, Kenneth','Gatchalian (Valenzuela)'],
+  ['Remulla, Jesus',     'Remulla (Cavite)'],
+  ['Remulla, Crispin',   'Remulla (Cavite)'],
+  ['Villar, Cynthia',    'Villar (Las Piñas)'],
+  ['Villar, Mark',       'Villar (Las Piñas)'],
+  ['Villar, Camille',    'Villar (Las Piñas)'],
+  // Ilocos Norte / Leyte
+  ['Marcos, Imelda',     'Marcos (Ilocos Norte)'],
+  ['Marcos, Ferdinand Jr','Marcos (Ilocos Norte)'],
+  ['Marcos, Imee',       'Marcos (Ilocos Norte)'],
+  ['Marcos III',         'Marcos (Ilocos Norte)'],
+  ['Romualdez, Ferdinand','Marcos (Ilocos Norte)'],
+];
+
+function applyClanSeeds() {
+  for (const [frag, clan] of CLAN_SEEDS) {
+    const frag_l = frag.toLowerCase();
+    DB.p.filter(p => p.fn.toLowerCase().includes(frag_l)).forEach(p => {
+      if (!p.cl) p.cl = clan;
+      p.dy = true;
+    });
+  }
+}
+
 // ─── KNOWN FAMILY RELATIONSHIPS (seed data) ──────────────────────────────
 // Since the Relationships sheet is currently empty, this seed list ensures
 // key multi-generation families still show dynasty links in the dashboard.
@@ -794,6 +837,12 @@ async function init() {
     }
   }
   console.log(`✅ Cross-linked ${enriched} dynasty matches, synthesized ${synthesized} district-only reps`);
+
+  // ── APPLY CLAN SEEDS ──
+  // Force-assign clans to known key persons before inference runs,
+  // so the surname chain has something to seed from even when the
+  // roster CLAN column is empty (e.g. Ronaldo Zamora, Gatchalians).
+  applyClanSeeds();
 
   // ── SURNAME DYNASTY INFERENCE ──
   // For synthetic persons (not in roster, no clan tag), check if any
