@@ -471,19 +471,33 @@ function applyKnownRelations() {
     const aP = DB.p.find(p => p.fn.toLowerCase().includes(aFrag_l));
     const bP = DB.p.find(p => p.fn.toLowerCase().includes(bFrag_l));
     if (!aP || !bP) continue;
-    // Determine shared clan: prefer existing, then derive from surname
-    const clan = aP.cl || bP.cl || (surName(aP.fn).charAt(0).toUpperCase() + surName(aP.fn).slice(1) + ' (NCR)');
-    if (!aP.cl) { aP.cl = clan; aP.dy = true; }
-    if (!bP.cl) { bP.cl = clan; bP.dy = true; }
+    // Determine shared clan: prefer existing non-inferred clan, then use the
+    // fragment-based name to avoid generic surnames getting wrong region tags
+    const existingClan = (aP.cl && !aP._synthetic) ? aP.cl :
+                         (bP.cl && !bP._synthetic) ? bP.cl : null;
+    const sn = surName(aP.fn);
+    const snTitle = sn.charAt(0).toUpperCase() + sn.slice(1);
+    // Determine region context for the clan name
+    const region = (aP.rg || bP.rg || '').includes('NCR') ? 'NCR' :
+                   (aP.rg || bP.rg || '').split('(')[0].trim().replace(/Region \w+ /, '').trim();
+    const derivedClan = existingClan || `${snTitle} (${region || 'PH'})`;
+    if (!aP.cl) { aP.cl = derivedClan; aP.dy = true; }
+    if (!bP.cl) { bP.cl = aP.cl; bP.dy = true; }
+    // If both have clans but different ones, unify to the one already set on aP
+    if (aP.cl !== bP.cl) { bP.cl = aP.cl; }
+    aP.dy = true; bP.dy = true;
   }
 }
 
 // ─── FUZZY NAME MATCHING ──────────────────────────────────────────────────
 function normName(s) {
   if (!s) return '';
-  return s.toLowerCase()
+  // Normalize accented chars before processing (handles ñ, é, ó, etc. in Filipino names)
+  let n = s.toLowerCase();
+  try { n = n.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); } catch(e) {}
+  return n
     .replace(/["""'']/g, '')
-    .replace(/\b(jr|sr|ii|iii|iv|v|md|phd)\.?\b/g, '')
+    .replace(/\b(jr|sr|ii|iii|iv|v|md|phd|dpa|rn)\.?\b/g, '')
     .replace(/[^a-z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ').trim();
 }
@@ -524,7 +538,8 @@ const FUZZY_THRESHOLD = 0.75;
 
 function splitRepNames(val) {
   if (!val) return [];
-  return val.split(/[;\n]/).map(s => s.trim()).filter(Boolean);
+  // Split on semicolon (with or without surrounding whitespace/newlines)
+  return val.split(/\s*;\s*|\n/).map(s => s.trim()).filter(Boolean);
 }
 
 // ─── DATA STORE ──────────────────────────────────────────────────────────
@@ -572,10 +587,12 @@ function parseCSV(text) {
 
 function normCongress(raw) {
   if (!raw) return '';
-  const m = raw.trim().match(/^(\d+)(?:st|nd|rd|th)?\s+congress$/i);
+  const m = raw.trim().match(/^(\d+)(?:st|nd|rd|th)?[\s\-]+congress$/i);
   if (!m) return raw.trim();
   const n = parseInt(m[1]);
-  const sfx = [11,12,13].includes(n) ? 'th' : ['','st','nd','rd'][n%10]||'th';
+  let sfx;
+  if (n % 100 >= 11 && n % 100 <= 13) { sfx = 'th'; }
+  else { sfx = ['', 'st', 'nd', 'rd'][n % 10] || 'th'; }
   return `${n}${sfx} Congress`;
 }
 
@@ -603,14 +620,20 @@ async function loadLegislators() {
       if (r2&&!r2.startsWith('=')&&!p.n)  p.n=r2;
       if (!p.rg&&r[iREG])  p.rg=r[iREG].trim();
       if (!p.di&&r[iDIST]) p.di=r[iDIST].trim();
-      if (!p.sx&&r[iSEX])  p.sx=r[iSEX].trim();
-      if (!p.bd&&r[iBD])   p.bd=r[iBD].trim();
-      if (!p.cl&&iCLAN>=0&&r[iCLAN]) p.cl=r[iCLAN].trim();
-      if (!p.ld&&iLEAD>=0&&r[iLEAD]) p.ld=r[iLEAD].trim();
-      if (!p.ak&&iAKA>=0&&r[iAKA])   p.ak=r[iAKA].trim();
-      if (!p.sp&&iSPK>=0&&r[iSPK])   p.sp=true;
-      const period=(r[iPER]||'').trim();
-      if (period){p.tt++;const nc=normCongress(period);if(MODERN_SET.has(nc))p.tr.push(nc);}
+      if (!p.sx&&r[iSEX])  p.sx=(r[iSEX]||'').trim();
+      if (!p.bd&&r[iBD])   p.bd=(r[iBD]||'').trim();
+      if (!p.cl&&iCLAN>=0&&r[iCLAN]) p.cl=(r[iCLAN]||'').trim()||null;
+      if (!p.ld&&iLEAD>=0&&r[iLEAD]) p.ld=(r[iLEAD]||'').trim();
+      if (!p.ak&&iAKA>=0&&r[iAKA])   p.ak=(r[iAKA]||'').trim();
+      if (!p.sp&&iSPK>=0&&r[iSPK]&&(r[iSPK]||'').trim())   p.sp=true;
+      const period=((r[iPER]||'').trim());
+      if (period){
+        const nc=normCongress(period);
+        // Count all terms (tt) regardless of congress period
+        p.tt++;
+        // But only push to tr[] (modern congresses used for filtering) if in MODERN_SET
+        if(MODERN_SET.has(nc) && !p.tr.includes(nc)) p.tr.push(nc);
+      }
     }
     DB.p = [...map.values()].map(p=>({
       ...p, dy:Boolean(p.cl),
@@ -672,15 +695,21 @@ function findPerson(name) {
   if (hit) return hit;
   // Case-insensitive
   const lc = clean.toLowerCase();
-  hit = DB.p.find(p => (p.fn||'').toLowerCase()===lc||(p.n2||'').toLowerCase()===lc);
+  hit = DB.p.find(p => (p.fn||'').toLowerCase()===lc||(p.n2||'').toLowerCase()===lc||(p.n||'').toLowerCase()===lc);
   if (hit) return hit;
-  // Fuzzy: only check names starting with same first letter
+  // Fuzzy: check names with same first letter OR levenshtein distance ≤2 on surname
   const tSur = surName(clean);
   if (!tSur) return null;
   let best = null, bestScore = FUZZY_THRESHOLD;
   for (const p of DB.p) {
-    if (!surName(p.fn).startsWith(tSur[0])) continue;
-    const score = Math.max(fuzzyScore(clean,p.fn), fuzzyScore(clean,p.n2), fuzzyScore(clean,p.n));
+    const pSur = surName(p.fn);
+    // Allow matching if surname starts with same letter OR surnames are close
+    if (!pSur.startsWith(tSur[0]) && lev(tSur, pSur) > 2) continue;
+    const score = Math.max(
+      fuzzyScore(clean, p.fn),
+      fuzzyScore(clean, p.n2),
+      fuzzyScore(clean, p.n)
+    );
     if (score > bestScore) { bestScore=score; best=p; }
   }
   return best;
@@ -721,7 +750,11 @@ async function init() {
           if (match.cl) enriched++;
           if (!match.di) match.di = d.d;
           if (!match.rg) match.rg = d.r;
-          if (!match.tr.includes(congress)) { match.tr.push(congress); match.tt++; }
+          // Only increment tt if this congress wasn't already counted from the roster
+          if (!match.tr.includes(congress)) {
+            match.tr.push(congress);
+            if (MODERN_SET.has(congress)) match.tt++;
+          }
 
         } else {
           // ── NOT in roster: synthesize a minimal person entry ──
@@ -780,10 +813,20 @@ async function init() {
     const clans = clanBySurname[sn];
     if (clans) {
       // Pick the most common clan for this surname
-      const topClan = Object.entries(clans).sort((a,b)=>b[1]-a[1])[0][0];
+      // But prefer clans that share the same region to avoid cross-family false matches
+      const regionClans = Object.entries(clans)
+        .filter(([cl]) => {
+          // Find any clan member in same region
+          return DB.p.some(q => q.cl === cl && !q._synthetic && q.rg === p.rg);
+        })
+        .sort((a,b) => b[1]-a[1]);
+      const topClan = (regionClans[0] || Object.entries(clans).sort((a,b)=>b[1]-a[1])[0])[0];
       p.cl = topClan;
       p.dy = true;
       dynastyInferred++;
+      // Also update clanBySurname so later entries can find this
+      if (!clanBySurname[sn]) clanBySurname[sn] = {};
+      clanBySurname[sn][topClan] = (clanBySurname[sn][topClan]||0) + 1;
     }
   });
   console.log(`✅ Inferred dynasty for ${dynastyInferred} district-only reps by surname`);
@@ -888,7 +931,11 @@ function doSearch(){
   searchResults=DB.p.filter(p=>{
     if(q && !([p.fn,p.n2,p.n,p.ak].map(s=>(s||'').toLowerCase()).join(' ')).includes(q)) return false;
     if(dq && ![(p.di||''),(p.rg||'')].map(s=>s.toLowerCase()).join(' ').includes(dq)) return false;
-    if(cong && !(p.tr||[]).includes(cong)) return false;
+    if(cong){
+      // Check both roster terms and districts cross-link
+      const inRoster = (p.tr||[]).includes(cong);
+      if(!inRoster) return false;
+    }
     if(filt==='dynasty'   && !p.dy)        return false;
     if(filt==='female'    && p.sx!=='F')   return false;
     if(filt==='male'      && p.sx!=='M')   return false;
@@ -1117,15 +1164,18 @@ function renderDistricts(){
           });
         const display = raw || '—';
         const firstRaw = splitRepNames(raw)[0]||'';
-        const clickEnc = firstRaw ? encodeURIComponent(firstRaw) : '';
-        return `<td title="${raw}"
+        // Prefer the matched person's canonical fn for reliable modal lookup
+        const firstMatched = matchedPersons[0];
+        const clickName = firstMatched ? firstMatched.fn : firstRaw;
+        const clickEnc = clickName ? encodeURIComponent(clickName) : '';
+        return `<td title="${raw.replace(/"/g,'&quot;')}"
           style="${isDyn?'color:var(--gold);font-weight:600':''};${raw?'cursor:pointer':''}"
           ${clickEnc?`onclick="openModal('${clickEnc}')"`:''}>${display}</td>`;
       }).join('')}</tr>`;
   });
 
   document.getElementById('districtTbody').innerHTML = rows ||
-    `<tr><td colspan="${2+ALL_CONGRESSES.length+2}" style="text-align:center;padding:40px;color:var(--text3)">No districts match.</td></tr>`;
+    `<tr><td colspan="${2+ALL_CONGRESSES.length}" style="text-align:center;padding:40px;color:var(--text3)">No districts match.</td></tr>`;
 }
 
 // ─── DYNASTIES VIEW ───────────────────────────────────────────────────────
