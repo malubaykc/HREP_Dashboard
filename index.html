@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -673,10 +672,16 @@ async function loadLegislators() {
       const period=((r[iPER]||'').trim());
       if (period){
         const nc=normCongress(period);
-        // Count all terms (tt) regardless of congress period
-        p.tt++;
-        // But only push to tr[] (modern congresses used for filtering) if in MODERN_SET
-        if(MODERN_SET.has(nc) && !p.tr.includes(nc)) p.tr.push(nc);
+        // Only count and push if this congress is genuinely new for this person.
+        // This prevents duplicate roster rows for the same congress inflating tt.
+        if(MODERN_SET.has(nc) && !p.tr.includes(nc)) {
+          p.tr.push(nc);
+          p.tt++;
+        } else if(!MODERN_SET.has(nc)) {
+          // Pre-8th congress: track separately so tt stays consistent with tr.length
+          if(!p._preModern) p._preModern = new Set();
+          if(!p._preModern.has(nc)) { p._preModern.add(nc); p.tt++; }
+        }
       }
     }
     DB.p = [...map.values()].map(p=>({
@@ -1280,27 +1285,41 @@ function renderCongressView(){
   // Pull members from BOTH sources:
   // 1. Roster: anyone with this congress in their tr[]
   // 2. Districts: anyone who appears in this congress column, even if not in roster
+  // rosterSet keys on both fn AND normName(fn) to catch near-duplicate entries
+  // that would otherwise appear twice due to fuzzy match vs exact match divergence.
   const rosterSet = new Set();
+  const addToSet = fn => { rosterSet.add(fn); rosterSet.add(normName(fn)); };
+  const inSet = fn => rosterSet.has(fn) || rosterSet.has(normName(fn));
+
   const members = DB.p.filter(p=>{
     if(!(p.tr||[]).includes(cong)) return false;
     if(reg&&p.rg!==reg) return false;
     if(sex&&p.sx!==sex) return false;
-    rosterSet.add(p.fn);
+    addToSet(p.fn);
     return true;
   });
 
   // Add district-only reps (in districts sheet for this congress but not in roster)
+  // Use d.matched first (pre-linked, reliable), then fall back to findPerson
   for (const d of DB.d) {
     if(reg && d.r!==reg) continue;
-    const cell = d.h[cong];
-    if(!cell) continue;
-    const names = splitRepNames(cell);
-    for (const rawName of names) {
-      const matched = findPerson(rawName);
-      if(matched && !rosterSet.has(matched.fn)){
+    const matchedPersons = (d.matched && d.matched[cong]) || [];
+    for (const matched of matchedPersons) {
+      if(!inSet(matched.fn)){
         if(sex && matched.sx!==sex) continue;
         members.push(matched);
-        rosterSet.add(matched.fn);
+        addToSet(matched.fn);
+      }
+    }
+    // Also catch any names not in d.matched (fallback)
+    const cell = d.h[cong];
+    if(!cell) continue;
+    for (const rawName of splitRepNames(cell)) {
+      const mp = findPerson(rawName);
+      if(mp && !inSet(mp.fn)){
+        if(sex && mp.sx!==sex) continue;
+        members.push(mp);
+        addToSet(mp.fn);
       }
     }
   }
