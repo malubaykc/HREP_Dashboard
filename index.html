@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🇵🇭 PH Congress Dynasty Tracker</title>
+<title>PH Congress Dynasty Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -429,109 +429,6 @@ function mergeDistricts(rawRows) {
   );
 }
 
-// ─── CLAN SEEDS ──────────────────────────────────────────────────────────
-// Directly assigns a clan to any person whose fn contains the key fragment.
-// This is the authoritative source when the roster CLAN column is empty.
-// Applied BEFORE surname inference so the whole chain seeds correctly.
-const CLAN_SEEDS = [
-  // NCR
-  ['Zamora, Ronaldo',    'Zamora (NCR)'],
-  ['Zamora, Ysabel',     'Zamora (NCR)'],
-  ['Zamora, Maria Carmen', 'Zamora (Davao de Oro)'],
-  ['Zamora, Manuel',     'Zamora (Davao de Oro)'],
-  ['Zamora-Apsay',       'Zamora (Davao de Oro)'],
-  ['Cayetano, Alan',     'Cayetano (Taguig)'],
-  ['Cayetano, Pia',      'Cayetano (Taguig)'],
-  ['Cayetano, Laarni',   'Cayetano (Taguig)'],
-  ['Belmonte, Fernando', 'Belmonte (QC)'],
-  ['Belmonte, Jose',     'Belmonte (QC)'],
-  ['Gatchalian, Weslie', 'Gatchalian (Valenzuela)'],
-  ['Gatchalian, Sherwin','Gatchalian (Valenzuela)'],
-  ['Gatchalian, Rexlon', 'Gatchalian (Valenzuela)'],
-  ['Gatchalian, Kenneth','Gatchalian (Valenzuela)'],
-  ['Remulla, Jesus',     'Remulla (Cavite)'],
-  ['Remulla, Crispin',   'Remulla (Cavite)'],
-  ['Villar, Cynthia',    'Villar (Las Piñas)'],
-  ['Villar, Mark',       'Villar (Las Piñas)'],
-  ['Villar, Camille',    'Villar (Las Piñas)'],
-  // Ilocos Norte / Leyte
-  ['Marcos, Imelda',     'Marcos (Ilocos Norte)'],
-  ['Marcos, Ferdinand Jr','Marcos (Ilocos Norte)'],
-  ['Marcos, Imee',       'Marcos (Ilocos Norte)'],
-  ['Marcos III',         'Marcos (Ilocos Norte)'],
-  ['Romualdez, Ferdinand','Marcos (Ilocos Norte)'],
-];
-
-function applyClanSeeds() {
-  for (const [frag, clan] of CLAN_SEEDS) {
-    const frag_l = frag.toLowerCase();
-    DB.p.filter(p => p.fn.toLowerCase().includes(frag_l)).forEach(p => {
-      if (!p.cl) p.cl = clan;
-      p.dy = true;
-    });
-  }
-}
-
-// ─── KNOWN FAMILY RELATIONSHIPS (seed data) ──────────────────────────────
-// Since the Relationships sheet is currently empty, this seed list ensures
-// key multi-generation families still show dynasty links in the dashboard.
-// Format: [person_name_fragment, relative_name_fragment, relationship]
-// Uses substring matching against DB.p names at runtime.
-const KNOWN_RELATIONS = [
-  // Zamora – San Juan City (NCR)
-  ['Zamora, Ysabel',       'Zamora, Ronaldo',        'Granddaughter'],
-  ['Zamora, Ronaldo',      'Zamora, Ysabel',          'Grandfather'],
-  // Cayetano – Taguig
-  ['Cayetano, Alan',       'Cayetano, Pia',           'Brother'],
-  ['Cayetano, Pia',        'Cayetano, Alan',          'Sister'],
-  ['Cayetano, Laarni',     'Cayetano, Alan',          'Sister-in-law'],
-  // Belmonte – Quezon City
-  ['Belmonte, Jose',       'Belmonte, Fernando',      'Relative'],
-  // Marcos – Ilocos Norte / Leyte
-  ['Marcos, Ferdinand Jr', 'Marcos, Imelda',          'Son'],
-  ['Marcos, Imee',         'Marcos, Imelda',          'Daughter'],
-  ['Marcos, Imelda',       'Marcos, Ferdinand Jr',    'Mother'],
-  // Aquino – Tarlac
-  ['Aquino, Benigno',      'Aquino, Butz',            'Relative'],
-  // Gatchalian – Valenzuela
-  ['Gatchalian, Weslie',   'Gatchalian, Rexlon',      'Brother'],
-  ['Gatchalian, Rexlon',   'Gatchalian, Weslie',      'Brother'],
-  // Remulla – Cavite
-  ['Remulla, Crispin',     'Remulla, Jesus',          'Brother'],
-  ['Remulla, Jesus',       'Remulla, Crispin',        'Brother'],
-  // Romualdez / Marcos
-  ['Romualdez, Ferdinand', 'Marcos, Ferdinand Jr',    'Cousin'],
-  // Villar – Las Piñas
-  ['Villar, Mark',         'Villar, Cynthia',         'Son'],
-  ['Villar, Camille',      'Villar, Mark',            'Sister'],
-];
-
-function applyKnownRelations() {
-  // For each known relationship pair, find matching persons and ensure
-  // they share a clan tag so they appear as dynasty members together.
-  for (const [aFrag, bFrag, rel] of KNOWN_RELATIONS) {
-    const aFrag_l = aFrag.toLowerCase(), bFrag_l = bFrag.toLowerCase();
-    const aP = DB.p.find(p => p.fn.toLowerCase().includes(aFrag_l));
-    const bP = DB.p.find(p => p.fn.toLowerCase().includes(bFrag_l));
-    if (!aP || !bP) continue;
-    // Determine shared clan: prefer existing non-inferred clan, then use the
-    // fragment-based name to avoid generic surnames getting wrong region tags
-    const existingClan = (aP.cl && !aP._synthetic) ? aP.cl :
-                         (bP.cl && !bP._synthetic) ? bP.cl : null;
-    const sn = surName(aP.fn);
-    const snTitle = sn.charAt(0).toUpperCase() + sn.slice(1);
-    // Determine region context for the clan name
-    const region = (aP.rg || bP.rg || '').includes('NCR') ? 'NCR' :
-                   (aP.rg || bP.rg || '').split('(')[0].trim().replace(/Region \w+ /, '').trim();
-    const derivedClan = existingClan || `${snTitle} (${region || 'PH'})`;
-    if (!aP.cl) { aP.cl = derivedClan; aP.dy = true; }
-    if (!bP.cl) { bP.cl = aP.cl; bP.dy = true; }
-    // If both have clans but different ones, unify to the one already set on aP
-    if (aP.cl !== bP.cl) { bP.cl = aP.cl; }
-    aP.dy = true; bP.dy = true;
-  }
-}
-
 // ─── FUZZY NAME MATCHING ──────────────────────────────────────────────────
 function normName(s) {
   if (!s) return '';
@@ -844,75 +741,12 @@ async function init() {
   }
   console.log(`✅ Cross-linked ${enriched} dynasty matches, synthesized ${synthesized} district-only reps`);
 
-  // ── APPLY CLAN SEEDS ──
-  // Force-assign clans to known key persons before inference runs,
-  // so the surname chain has something to seed from even when the
-  // roster CLAN column is empty (e.g. Ronaldo Zamora, Gatchalians).
-  applyClanSeeds();
-
-  // ── SURNAME DYNASTY INFERENCE ──
-  // For synthetic persons (not in roster, no clan tag), check if any
-  // existing roster person shares the same surname AND has a clan tag.
-  // If so, assign that clan — this catches family members like Bel Zamora
-  // who are in the districts sheet but not yet in the roster.
-  const clanBySurname = {};
-  DB.p.filter(p => p.cl && !p._synthetic).forEach(p => {
-    const sn = surName(p.fn).toLowerCase();
-    if (!clanBySurname[sn]) clanBySurname[sn] = {};
-    clanBySurname[sn][p.cl] = (clanBySurname[sn][p.cl]||0) + 1;
-  });
-
-  let dynastyInferred = 0;
-  DB.p.filter(p => p._synthetic && !p.cl).forEach(p => {
-    const sn = surName(p.fn).toLowerCase();
-    const clans = clanBySurname[sn];
-    if (clans) {
-      // Pick the most common clan for this surname
-      // But prefer clans that share the same region to avoid cross-family false matches
-      const regionClans = Object.entries(clans)
-        .filter(([cl]) => {
-          // Find any clan member in same region
-          return DB.p.some(q => q.cl === cl && !q._synthetic && q.rg === p.rg);
-        })
-        .sort((a,b) => b[1]-a[1]);
-      const topClan = (regionClans[0] || Object.entries(clans).sort((a,b)=>b[1]-a[1])[0])[0];
-      p.cl = topClan;
-      p.dy = true;
-      dynastyInferred++;
-      // Also update clanBySurname so later entries can find this
-      if (!clanBySurname[sn]) clanBySurname[sn] = {};
-      clanBySurname[sn][topClan] = (clanBySurname[sn][topClan]||0) + 1;
-    }
-  });
-  console.log(`✅ Inferred dynasty for ${dynastyInferred} district-only reps by surname`);
-
   // Sort congress terms chronologically
   DB.p.forEach(p => {
     p.tr = [...new Set(p.tr)].sort((a,b) => {
       const na = parseInt(a), nb = parseInt(b);
       return na - nb;
     });
-  });
-
-  // ── APPLY HARDCODED KNOWN RELATIONSHIPS ──
-  applyKnownRelations();
-
-  // ── BACKFILL CLAN TO ROSTER PERSONS WITH SAME SURNAME ──
-  // If a synthetic person was assigned a clan by surname inference,
-  // also tag any un-clanned roster person with the same surname.
-  // This fixes e.g. Ronaldo Zamora having no clan while Bel does.
-  DB.p.filter(p => p._synthetic && p.cl).forEach(synth => {
-    const sn = surName(synth.fn).toLowerCase();
-    DB.p.filter(p => !p._synthetic && !p.cl && surName(p.fn).toLowerCase() === sn)
-      .forEach(p => { p.cl = synth.cl; p.dy = true; });
-  });
-
-  // Also: if any roster person has no clan but shares a surname with
-  // a clanned roster person AND same district, inherit the clan.
-  DB.p.filter(p => !p.cl && p.di).forEach(p => {
-    const sn = surName(p.fn).toLowerCase();
-    const sibling = DB.p.find(q => q.cl && q.di === p.di && surName(q.fn).toLowerCase() === sn);
-    if (sibling) { p.cl = sibling.cl; p.dy = true; }
   });
 
   // Clan member counts
@@ -1124,12 +958,6 @@ function openModal(encodedName){
     ? repDistricts.map(d=>d.d).join(', ')
     : p.di || '—';
 
-  const knownRels = KNOWN_RELATIONS
-    .filter(([aFrag]) => p.fn.toLowerCase().includes(aFrag.toLowerCase()))
-    .map(([_a, bFrag, rel]) => {
-      const relP = DB.p.find(q => q.fn.toLowerCase().includes(bFrag.toLowerCase()));
-      return relP ? relP.fn + ' (' + rel + ')' : null;
-    }).filter(Boolean);
   const info=[
     {lbl:'Sex',              val:p.sx==='F'?'Female':p.sx==='M'?'Male':'Unknown'},
     {lbl:'Birthdate',        val:p.bd||'—'},
@@ -1139,7 +967,7 @@ function openModal(encodedName){
     {lbl:'Clan Members',     val:p.cm>=2?p.cm+' members in Congress':'—'},
     {lbl:'Total Terms',      val:p.tt||0},
     {lbl:'House Leadership', val:p.ld||'—'},
-  ].concat(knownRels.length ? [{lbl:'Known Relations', val:knownRels.join(' · ')}] : []);
+  ];
   let html=`<div class="info-grid">${info.map(i=>`
     <div class="info-item"><div class="info-lbl">${i.lbl}</div>
     <div class="info-val ${i.cls||''}">${i.val}</div></div>`).join('')}</div>`;
